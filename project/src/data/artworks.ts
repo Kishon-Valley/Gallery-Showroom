@@ -4,7 +4,7 @@ export const artworks: Artwork[] = [
   {
     id: '1',
     title: 'Title of Artwork 1',
-    imageUrl: '/src/img/image1.jpg',
+    imageUrl: '/img/image1.jpg',
     price: 1200,
     artist: 'Artist Name 1',
     dimensions: '24" × 36"',
@@ -14,7 +14,7 @@ export const artworks: Artwork[] = [
   {
     id: '2',
     title: 'Title of Artwork 2',
-    imageUrl: '/src/img/image2.jpg',
+    imageUrl: '/img/image2.jpg',
     price: 950,
     artist: 'Artist Name 2',
     dimensions: '18" × 24"',
@@ -24,7 +24,7 @@ export const artworks: Artwork[] = [
   {
     id: '3',
     title: 'Title of Artwork 3',
-    imageUrl: '/src/img/image3.jpg',
+    imageUrl: '/img/image3.jpg',
     price: 1500,
     artist: 'Artist Name 3',
     dimensions: '30" × 40"',
@@ -34,7 +34,7 @@ export const artworks: Artwork[] = [
   {
     id: '4',
     title: 'Title of Artwork 4',
-    imageUrl: '/src/img/image4.jpg',
+    imageUrl: '/img/image4.jpg',
     price: 1800,
     artist: 'Artist Name 4',
     dimensions: '36" × 48"',
