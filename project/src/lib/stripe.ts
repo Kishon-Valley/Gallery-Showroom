@@ -1,35 +1,55 @@
-// We're using a server-side checkout flow, so we don't need the client-side Stripe.js library
+// Import the Stripe client library
+import { loadStripe } from '@stripe/stripe-js';
 
 // Log the environment variable (without exposing the full key)
 const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '';
 console.log('Stripe key available:', !!publishableKey);
 console.log('Stripe key prefix:', publishableKey?.substring(0, 7));
 
-// Note: If you need client-side Stripe functionality in the future:
-// 1. Import loadStripe from '@stripe/stripe-js'
-// 2. Initialize it with: const stripePromise = loadStripe(publishableKey)
+// Initialize Stripe
+const stripePromise = loadStripe(publishableKey);
 
 // Function to handle checkout process
 export async function redirectToStripeCheckout(cart: any[]) {
   try {
-    // Use a relative URL that works in both development and production
-    const response = await fetch('/api/create-checkout-session', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ cart }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to create checkout session');
-    }
-
-    const { url } = await response.json();
+    console.log('Starting checkout process with cart:', cart.length, 'items');
     
-    // Redirect to Stripe checkout
-    window.location.href = url;
+    if (!cart || cart.length === 0) {
+      throw new Error('Cart is empty');
+    }
+    
+    // Get the Stripe instance
+    const stripe = await stripePromise;
+    if (!stripe) {
+      throw new Error('Failed to initialize Stripe');
+    }
+    
+    // Format line items for Stripe
+    const lineItems = cart.map(item => ({
+      price_data: {
+        currency: 'usd',
+        product_data: {
+          name: item.title,
+          description: `${item.artist}${item.dimensions ? ` - ${item.dimensions}` : ''}`,
+          images: item.imageUrl ? [item.imageUrl] : [],
+        },
+        unit_amount: Math.round(item.price * 100), // Convert to cents
+      },
+      quantity: item.quantity || 1,
+    }));
+    
+    // Create a Checkout Session
+    const { error } = await stripe.redirectToCheckout({
+      mode: 'payment',
+      lineItems: lineItems,
+      successUrl: `${window.location.origin}/cart?success=true`,
+      cancelUrl: `${window.location.origin}/cart?canceled=true`,
+    });
+    
+    if (error) {
+      console.error('Stripe Checkout error:', error);
+      throw new Error(error.message || 'Failed to redirect to Stripe Checkout');
+    }
   } catch (error) {
     console.error('Error in redirectToCheckout:', error);
     throw error;
