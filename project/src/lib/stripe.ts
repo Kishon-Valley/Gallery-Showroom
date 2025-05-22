@@ -12,7 +12,8 @@ console.log('Stripe key prefix:', publishableKey?.substring(0, 7));
 // Function to handle checkout process
 export async function redirectToStripeCheckout(cart: any[]) {
   try {
-    const response = await fetch('http://localhost:3000/api/create-checkout-session', {
+    // Use a relative URL that works in both development and production
+    const response = await fetch('/api/create-checkout-session', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
