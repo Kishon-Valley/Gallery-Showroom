@@ -11,7 +11,35 @@ const ArtworkManager: React.FC = () => {
 
   useEffect(() => {
     fetchArtworks();
+    // Inspect the database schema to see what columns are available
+    inspectDatabaseSchema();
   }, []);
+  
+  // Function to inspect the database schema
+  const inspectDatabaseSchema = async () => {
+    try {
+      console.log('Inspecting database schema...');
+      // Get a sample artwork to see the actual field names
+      const { data, error } = await supabase
+        .from('artworks')
+        .select('*')
+        .limit(1);
+        
+      if (error) {
+        console.error('Error fetching sample artwork:', error);
+        return;
+      }
+      
+      if (data && data.length > 0) {
+        console.log('Sample artwork from database:', data[0]);
+        console.log('Available fields:', Object.keys(data[0]));
+      } else {
+        console.log('No artworks found in the database');
+      }
+    } catch (err) {
+      console.error('Error inspecting schema:', err);
+    }
+  };
 
   const fetchArtworks = async () => {
     try {
@@ -74,20 +102,35 @@ const ArtworkManager: React.FC = () => {
       // Create a sanitized version of the artwork data that only includes fields we know exist in the database
       // This is based on the error message about missing 'category' column
       const sanitizeData = (data: any) => {
-        // Include only fields we know exist in the database
-        // Adjust this list based on your actual database schema
-        const safeFields = [
-          'title', 'artist', 'description', 'price', 'imageUrl',
-          'medium', 'dimensions', 'year', 'featured', 'quantity', 'type'
-          // Using 'type' instead of 'category' to match the database schema
-        ];
+        // Map our form fields to the actual database column names
+        // Based on the error message, it seems 'imageUrl' might be named differently in the database
+        const fieldMappings: Record<string, string> = {
+          'title': 'title',
+          'artist': 'artist',
+          'description': 'description',
+          'price': 'price',
+          'imageUrl': 'image_url', // Try using snake_case as it's common in databases
+          'medium': 'medium',
+          'dimensions': 'dimensions',
+          'year': 'year',
+          'featured': 'featured',
+          'quantity': 'quantity',
+          'type': 'type'
+        };
         
         const sanitized: any = {};
-        safeFields.forEach(field => {
-          if (data[field] !== undefined) {
-            sanitized[field] = data[field];
+        
+        // Add mapped fields to the sanitized object
+        Object.entries(data).forEach(([key, value]) => {
+          const dbField = fieldMappings[key];
+          if (dbField && value !== undefined) {
+            sanitized[dbField] = value;
           }
         });
+        
+        // Log the sanitized data for debugging
+        console.log('Original data:', data);
+        console.log('Sanitized data for database:', sanitized);
         
         return sanitized;
       };
@@ -216,7 +259,7 @@ const ArtworkManager: React.FC = () => {
                 <tr key={artwork.id}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <img 
-                      src={artwork.imageUrl} 
+                      src={artwork.imageUrl || artwork.image_url} 
                       alt={artwork.title} 
                       className="h-16 w-16 object-cover rounded"
                     />
@@ -278,6 +321,7 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
       artist: '',
       description: '',
       price: 0,
+      image_url: '',
       imageUrl: '',
       medium: '',
       dimensions: '',
@@ -310,7 +354,7 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
   };
 
   const uploadImage = async (): Promise<string> => {
-    if (!imageFile) return formData.imageUrl || '';
+    if (!imageFile) return formData.imageUrl || formData.image_url || '';
     
     try {
       setUploading(true);
@@ -360,12 +404,20 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
         .from('artworks')
         .getPublicUrl(filePath);
       
-      console.log('Public URL:', data.publicUrl);  
+      console.log('Public URL:', data.publicUrl);
+      
+      // Update both image fields in the form data
+      setFormData(prev => ({
+        ...prev,
+        image_url: data.publicUrl,
+        imageUrl: data.publicUrl
+      }));
+      
       return data.publicUrl;
     } catch (error) {
       console.error('Error uploading image:', error);
       alert('Failed to upload image. Please try again.');
-      return formData.imageUrl || '';
+      return formData.imageUrl || formData.image_url || '';
     } finally {
       setUploading(false);
     }
@@ -383,7 +435,7 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
       }
       
       // Handle image upload
-      let imageUrl = formData.imageUrl;
+      let imageUrl = formData.imageUrl || formData.image_url;
       if (imageFile) {
         console.log('Uploading image file...');
         setUploading(true);
@@ -400,7 +452,9 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
       // Prepare artwork data with image URL
       const artworkData = {
         ...formData,
-        imageUrl,
+        // Use both image_url and imageUrl for compatibility
+        image_url: imageUrl,
+        imageUrl: imageUrl,
         // Ensure price is a number
         price: typeof formData.price === 'string' ? parseFloat(formData.price) : formData.price || 0,
         // Ensure quantity is a number
@@ -561,10 +615,10 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Image
               </label>
-              {formData.imageUrl && (
+              {(formData.imageUrl || formData.image_url) && (
                 <div className="mb-2">
                   <img 
-                    src={formData.imageUrl} 
+                    src={formData.imageUrl || formData.image_url} 
                     alt="Artwork preview" 
                     className="h-40 object-contain"
                   />
