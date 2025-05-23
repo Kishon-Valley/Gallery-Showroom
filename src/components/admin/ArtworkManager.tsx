@@ -262,7 +262,7 @@ const ArtworkManager: React.FC = () => {
                 <tr key={artwork.id}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <img 
-                      src={artwork.imageUrl || artwork.image_url} 
+                      src={artwork.imageUrl} 
                       alt={artwork.title} 
                       className="h-16 w-16 object-cover rounded"
                     />
@@ -418,7 +418,7 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
     } catch (error) {
       console.error('Error uploading image:', error);
       alert('Failed to upload image. Please try again.');
-      return formData.imageUrl || formData.image_url || '';
+      return formData.imageUrl || '';
     } finally {
       setUploading(false);
     }
