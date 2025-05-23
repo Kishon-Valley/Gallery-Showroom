@@ -16,9 +16,25 @@ const ArtworkManager: React.FC = () => {
   const fetchArtworks = async () => {
     try {
       setLoading(true);
+      // Explicitly specify the columns we want to select using their database names
       const { data, error } = await supabase
         .from('artworks')
-        .select('*')
+        .select(`
+          id, 
+          title, 
+          artist, 
+          description, 
+          price, 
+          medium, 
+          dimensions, 
+          year, 
+          featured, 
+          quantity, 
+          category, 
+          type, 
+          created_at, 
+          image_url
+        `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -28,21 +44,16 @@ const ArtworkManager: React.FC = () => {
       
       // Map database columns (snake_case) to TypeScript properties (camelCase)
       const mappedData = artworkData.map(item => {
-        // Create a base artwork object with required fields
+        // Create artwork object with required fields
         const artwork: Partial<Artwork> = {
           id: item.id,
           title: item.title,
           artist: item.artist,
           description: item.description,
           price: item.price,
+          // Handle the image URL field - use default if not available
+          imageUrl: item.image_url || 'https://via.placeholder.com/300x300?text=No+Image'
         };
-        
-        // Handle the image URL field - database uses snake_case (image_url)
-        if (item.image_url !== undefined) {
-          artwork.imageUrl = item.image_url;
-        } else {
-          artwork.imageUrl = 'https://via.placeholder.com/300x300?text=No+Image';
-        }
         
         // Add optional fields if they exist in the database record
         if (item.medium !== undefined) artwork.medium = item.medium;
