@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS public.artworks (
     imageUrl TEXT,
     featured BOOLEAN DEFAULT false,
     quantity INTEGER DEFAULT 1,
+    category TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
