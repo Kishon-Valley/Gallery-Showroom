@@ -2,7 +2,14 @@
 import Stripe from 'stripe';
 
 // Initialize Stripe with the appropriate key
-const stripe = new Stripe(process.env.VITE_STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY);
+// Make sure STRIPE_SECRET_KEY is set in your .env file
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+
+if (!stripeSecretKey) {
+  console.error('Missing Stripe secret key in environment variables');
+}
+
+const stripe = new Stripe(stripeSecretKey);
 
 export default async function handler(req, res) {
   // Enable CORS
