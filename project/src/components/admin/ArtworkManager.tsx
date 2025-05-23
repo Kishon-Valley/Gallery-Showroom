@@ -69,38 +69,64 @@ const ArtworkManager: React.FC = () => {
   const handleFormSubmit = async (artwork: Artwork) => {
     try {
       setLoading(true);
+      console.log('Submitting artwork:', artwork);
+      
+      // Create a sanitized version of the artwork data
+      const sanitizedArtwork = {
+        title: artwork.title,
+        artist: artwork.artist,
+        description: artwork.description,
+        price: artwork.price,
+        image_url: artwork.image_url,
+        medium: artwork.medium,
+        dimensions: artwork.dimensions,
+        year: artwork.year,
+        featured: artwork.featured,
+        quantity: artwork.quantity,
+        category: artwork.category
+      };
       
       if (selectedArtwork) {
         // Update existing artwork
+        console.log('Updating artwork with ID:', selectedArtwork.id);
         const { error } = await supabase
           .from('artworks')
-          .update(artwork)
+          .update(sanitizedArtwork)
           .eq('id', selectedArtwork.id);
           
-        if (error) throw error;
+        if (error) {
+          console.error('Supabase update error:', error);
+          throw error;
+        }
         
         setArtworks(artworks.map(a => 
-          a.id === selectedArtwork.id ? { ...a, ...artwork } : a
+          a.id === selectedArtwork.id ? { ...a, ...sanitizedArtwork } : a
         ));
       } else {
         // Create new artwork
+        console.log('Creating new artwork');
         const { data, error } = await supabase
           .from('artworks')
-          .insert([artwork])
+          .insert([sanitizedArtwork])
           .select();
           
-        if (error) throw error;
+        if (error) {
+          console.error('Supabase insert error:', error);
+          throw error;
+        }
         
-        if (data) {
+        if (data && data.length > 0) {
           setArtworks([...artworks, data[0]]);
         }
       }
       
       setIsFormOpen(false);
       setSelectedArtwork(null);
+      setError(null);
     } catch (error: any) {
       console.error('Error saving artwork:', error);
-      setError(error.message);
+      setError(error.message || 'Failed to save artwork');
+      alert('Error saving artwork: ' + (error.message || 'Unknown error'));
     } finally {
       setLoading(false);
     }
@@ -168,7 +194,7 @@ const ArtworkManager: React.FC = () => {
                 <tr key={artwork.id}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <img 
-                      src={artwork.imageUrl} 
+                      src={artwork.image_url} 
                       alt={artwork.title} 
                       className="h-16 w-16 object-cover rounded"
                     />
@@ -230,7 +256,7 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
       artist: '',
       description: '',
       price: 0,
-      imageUrl: '',
+      image_url: '',
       medium: '',
       dimensions: '',
       category: '',
@@ -262,32 +288,64 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
   };
 
   const uploadImage = async (): Promise<string> => {
-    if (!imageFile) return formData.imageUrl || '';
+    if (!imageFile) return formData.image_url || '';
     
     try {
       setUploading(true);
+      console.log('Starting image upload process...');
       
       // Create a unique file name
       const fileExt = imageFile.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
       const filePath = `artwork-images/${fileName}`;
       
-      // Upload to Supabase Storage
-      const { error: uploadError } = await supabase.storage
-        .from('artworks')
-        .upload(filePath, imageFile);
+      console.log('Uploading to path:', filePath);
+      
+      // Check if the storage bucket exists
+      const { data: buckets } = await supabase.storage.listBuckets();
+      console.log('Available buckets:', buckets);
+      
+      // Create the bucket if it doesn't exist
+      if (!buckets?.some(bucket => bucket.name === 'artworks')) {
+        console.log('Creating artworks bucket...');
+        const { error: createBucketError } = await supabase.storage.createBucket('artworks', {
+          public: true,
+          allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp'],
+          fileSizeLimit: 5242880 // 5MB
+        });
         
-      if (uploadError) throw uploadError;
+        if (createBucketError) {
+          console.error('Error creating bucket:', createBucketError);
+          throw new Error('Failed to create storage bucket');
+        }
+      }
+      
+      // Upload to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('artworks')
+        .upload(filePath, imageFile, {
+          cacheControl: '3600',
+          upsert: true
+        });
+        
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
+      
+      console.log('Upload successful:', uploadData);
       
       // Get public URL
       const { data } = supabase.storage
         .from('artworks')
         .getPublicUrl(filePath);
-        
+      
+      console.log('Public URL:', data.publicUrl);
+      
       return data.publicUrl;
     } catch (error) {
       console.error('Error uploading image:', error);
-      throw error;
+      throw new Error('Failed to upload image. Please try again.');
     } finally {
       setUploading(false);
     }
@@ -295,23 +353,43 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Form submission started');
     
     try {
-      let imageUrl = formData.imageUrl;
+      // Validate required fields
+      if (!formData.title || !formData.artist || !formData.price) {
+        alert('Please fill in all required fields (Title, Artist, Price)');
+        return;
+      }
       
+      // Handle image upload
+      let imageUrl = formData.image_url;
       if (imageFile) {
+        console.log('Uploading image file...');
+        setUploading(true);
         imageUrl = await uploadImage();
+        setUploading(false);
+      }
+      
+      // If we don't have an image URL and we're adding a new artwork, use a placeholder
+      if (!imageUrl && !artwork) {
+        console.log('No image provided, using placeholder');
+        imageUrl = 'https://via.placeholder.com/300x300?text=No+Image';
       }
       
       // Prepare artwork data with image URL
       const artworkData = {
         ...formData,
-        imageUrl,
+        image_url: imageUrl,
+        price: typeof formData.price === 'string' ? parseFloat(formData.price) : formData.price || 0,
+        quantity: typeof formData.quantity === 'string' ? parseInt(formData.quantity as string) : formData.quantity || 1,
       } as Artwork;
       
+      console.log('Submitting artwork data:', artworkData);
       onSubmit(artworkData);
     } catch (error) {
       console.error('Error in form submission:', error);
+      alert('Failed to save artwork. Please try again.');
     }
   };
 
@@ -460,10 +538,10 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Image
               </label>
-              {formData.imageUrl && (
+              {formData.image_url && (
                 <div className="mb-2">
                   <img 
-                    src={formData.imageUrl} 
+                    src={formData.image_url} 
                     alt="Artwork preview" 
                     className="h-40 object-contain"
                   />
