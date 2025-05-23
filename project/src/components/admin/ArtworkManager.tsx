@@ -418,7 +418,7 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
       // Prepare artwork data with image URL
       const artworkData = {
         ...formData,
-        imageUrl: imageUrl,
+        imageUrl: imageUrl, // Keep using camelCase in the application code
         price: typeof formData.price === 'string' ? parseFloat(formData.price) : formData.price || 0,
         quantity: typeof formData.quantity === 'string' ? parseInt(formData.quantity as string) : formData.quantity || 1,
       } as Artwork;
