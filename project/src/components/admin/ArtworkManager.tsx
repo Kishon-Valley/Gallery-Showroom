@@ -23,8 +23,11 @@ const ArtworkManager: React.FC = () => {
 
       if (error) throw error;
       
-      // Use a more flexible approach to map database columns to TypeScript properties
-      const mappedData = data ? data.map(item => {
+      // Ensure data is an array before mapping
+      const artworkData = Array.isArray(data) ? data : [];
+      
+      // Map database columns (snake_case) to TypeScript properties (camelCase)
+      const mappedData = artworkData.map(item => {
         // Create a base artwork object with required fields
         const artwork: Partial<Artwork> = {
           id: item.id,
@@ -34,11 +37,9 @@ const ArtworkManager: React.FC = () => {
           price: item.price,
         };
         
-        // Handle the image URL field which could be in different formats
+        // Handle the image URL field - database uses snake_case (image_url)
         if (item.image_url !== undefined) {
           artwork.imageUrl = item.image_url;
-        } else if (item.imageUrl !== undefined) {
-          artwork.imageUrl = item.imageUrl;
         } else {
           artwork.imageUrl = 'https://via.placeholder.com/300x300?text=No+Image';
         }
@@ -53,7 +54,7 @@ const ArtworkManager: React.FC = () => {
         if (item.type !== undefined) artwork.type = item.type;
         
         return artwork as Artwork;
-      }) : [];
+      });
       
       setArtworks(mappedData);
     } catch (error: any) {
