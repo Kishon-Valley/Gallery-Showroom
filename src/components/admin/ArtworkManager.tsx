@@ -69,38 +69,59 @@ const ArtworkManager: React.FC = () => {
   const handleFormSubmit = async (artwork: Artwork) => {
     try {
       setLoading(true);
+      console.log('Saving artwork to database:', artwork);
       
       if (selectedArtwork) {
         // Update existing artwork
+        console.log('Updating existing artwork with ID:', selectedArtwork.id);
+        
+        // Remove id from the update payload
+        const { id, ...updateData } = artwork;
+        
         const { error } = await supabase
           .from('artworks')
-          .update(artwork)
+          .update(updateData)
           .eq('id', selectedArtwork.id);
           
-        if (error) throw error;
+        if (error) {
+          console.error('Supabase update error:', error);
+          throw error;
+        }
         
+        console.log('Artwork updated successfully');
         setArtworks(artworks.map(a => 
           a.id === selectedArtwork.id ? { ...a, ...artwork } : a
         ));
       } else {
         // Create new artwork
+        console.log('Creating new artwork');
+        
+        // Remove any id field if it exists
+        const { id, ...newArtworkData } = artwork;
+        
         const { data, error } = await supabase
           .from('artworks')
-          .insert([artwork])
+          .insert([newArtworkData])
           .select();
           
-        if (error) throw error;
+        if (error) {
+          console.error('Supabase insert error:', error);
+          throw error;
+        }
         
-        if (data) {
+        console.log('New artwork created:', data);
+        if (data && data.length > 0) {
           setArtworks([...artworks, data[0]]);
         }
       }
       
       setIsFormOpen(false);
       setSelectedArtwork(null);
+      setError(null); // Clear any previous errors
     } catch (error: any) {
       console.error('Error saving artwork:', error);
-      setError(error.message);
+      setError(error.message || 'Failed to save artwork');
+      alert('Error saving artwork: ' + (error.message || 'Unknown error'));
     } finally {
       setLoading(false);
     }
@@ -266,28 +287,58 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
     
     try {
       setUploading(true);
+      console.log('Starting image upload process...');
       
       // Create a unique file name
       const fileExt = imageFile.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
       const filePath = `artwork-images/${fileName}`;
       
-      // Upload to Supabase Storage
-      const { error: uploadError } = await supabase.storage
-        .from('artworks')
-        .upload(filePath, imageFile);
+      console.log('Uploading to path:', filePath);
+      
+      // Check if the storage bucket exists
+      const { data: buckets } = await supabase.storage.listBuckets();
+      console.log('Available buckets:', buckets);
+      
+      // Create the bucket if it doesn't exist
+      if (!buckets?.some(bucket => bucket.name === 'artworks')) {
+        console.log('Creating artworks bucket...');
+        const { error: createBucketError } = await supabase.storage.createBucket('artworks', {
+          public: true
+        });
         
-      if (uploadError) throw uploadError;
+        if (createBucketError) {
+          console.error('Error creating bucket:', createBucketError);
+          // Continue anyway, as the bucket might exist but not be visible to this user
+        }
+      }
+      
+      // Upload to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('artworks')
+        .upload(filePath, imageFile, {
+          cacheControl: '3600',
+          upsert: true
+        });
+        
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
+      
+      console.log('Upload successful:', uploadData);
       
       // Get public URL
       const { data } = supabase.storage
         .from('artworks')
         .getPublicUrl(filePath);
-        
+      
+      console.log('Public URL:', data.publicUrl);  
       return data.publicUrl;
     } catch (error) {
       console.error('Error uploading image:', error);
-      throw error;
+      alert('Failed to upload image. Please try again.');
+      return formData.imageUrl || '';
     } finally {
       setUploading(false);
     }
@@ -295,23 +346,45 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Form submission started');
     
     try {
-      let imageUrl = formData.imageUrl;
+      // Validate required fields
+      if (!formData.title || !formData.artist || !formData.price) {
+        alert('Please fill in all required fields (Title, Artist, Price)');
+        return;
+      }
       
+      // Handle image upload
+      let imageUrl = formData.imageUrl;
       if (imageFile) {
+        console.log('Uploading image file...');
+        setUploading(true);
         imageUrl = await uploadImage();
+        setUploading(false);
+      }
+      
+      // If we don't have an image URL and we're adding a new artwork, use a placeholder
+      if (!imageUrl && !artwork) {
+        console.log('No image provided, using placeholder');
+        imageUrl = 'https://via.placeholder.com/300x300?text=No+Image';
       }
       
       // Prepare artwork data with image URL
       const artworkData = {
         ...formData,
         imageUrl,
+        // Ensure price is a number
+        price: typeof formData.price === 'string' ? parseFloat(formData.price) : formData.price || 0,
+        // Ensure quantity is a number
+        quantity: typeof formData.quantity === 'string' ? parseInt(formData.quantity as string) : formData.quantity || 1,
       } as Artwork;
       
+      console.log('Submitting artwork data:', artworkData);
       onSubmit(artworkData);
     } catch (error) {
       console.error('Error in form submission:', error);
+      alert('Failed to save artwork. Please try again.');
     }
   };
 
