@@ -1,18 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-// Define the Artwork type with quantity
-export interface Artwork {
-  id: string;
-  title: string;
-  artist: string;
-  description: string;
-  price: number;
-  imageUrl: string;
-  dimensions?: string;
-  medium?: string;
-  year?: string;
-  quantity?: number;
-}
+// Import the Artwork interface from types
+import { Artwork } from '../types/artwork';
 
 // Sample artwork data
 const artworkData: Artwork[] = [
