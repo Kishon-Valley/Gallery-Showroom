@@ -1,7 +1,7 @@
 export interface Artwork {
   id: string;
   title: string;
-  image_url: string; // Changed from imageUrl to image_url to match database schema
+  imageUrl: string; // This matches the actual column name in the database
   price: number;
   artist: string;
   description: string;
@@ -11,5 +11,4 @@ export interface Artwork {
   featured?: boolean;
   year?: string;
   quantity?: number;
-  imageUrl?: string; // For compatibility with old code
 }
