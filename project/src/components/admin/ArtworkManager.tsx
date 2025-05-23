@@ -116,22 +116,20 @@ const ArtworkManager: React.FC = () => {
       setLoading(true);
       console.log('Submitting artwork:', artwork);
       
-      // Create a sanitized version of the artwork data that works with any column naming convention
-      // This approach is more flexible and will work regardless of column names
-      const sanitizedArtwork: Record<string, any> = {};
-      
-      // Map all properties from the artwork object
-      // This ensures we're not hardcoding column names
-      Object.entries(artwork).forEach(([key, value]) => {
-        if (key === 'id') return; // Skip ID for new records
-        if (key === 'imageUrl') {
-          // Try both versions of the column name to ensure compatibility
-          sanitizedArtwork['imageUrl'] = value;
-          sanitizedArtwork['image_url'] = value;
-        } else {
-          sanitizedArtwork[key] = value;
-        }
-      });
+      // Create a sanitized version of the artwork data that matches the database schema
+      const sanitizedArtwork = {
+        title: artwork.title,
+        artist: artwork.artist,
+        description: artwork.description,
+        price: artwork.price,
+        image_url: artwork.imageUrl, // Map imageUrl to image_url for database
+        medium: artwork.medium,
+        dimensions: artwork.dimensions,
+        year: artwork.year,
+        featured: artwork.featured,
+        quantity: artwork.quantity,
+        category: artwork.category
+      };
       
       if (selectedArtwork) {
         // Update existing artwork
@@ -146,10 +144,8 @@ const ArtworkManager: React.FC = () => {
           throw error;
         }
         
-        // No need for manual mapping, just use the original artwork data
-        // This ensures we're using the correct data structure regardless of database column names
         setArtworks(artworks.map(a => 
-          a.id === selectedArtwork.id ? artwork : a
+          a.id === selectedArtwork.id ? { ...a, ...artwork } : a
         ));
       } else {
         // Create new artwork
@@ -165,35 +161,21 @@ const ArtworkManager: React.FC = () => {
         }
         
         if (data && data.length > 0) {
-          // Use the same flexible mapping approach as in fetchArtworks
-          const item = data[0];
-          const newArtwork: Partial<Artwork> = {
-            id: item.id,
-            title: item.title,
-            artist: item.artist,
-            description: item.description,
-            price: item.price,
+          const newArtwork: Artwork = {
+            id: data[0].id,
+            title: data[0].title,
+            artist: data[0].artist,
+            description: data[0].description,
+            price: data[0].price,
+            imageUrl: data[0].image_url, // Map image_url back to imageUrl for the frontend
+            medium: data[0].medium,
+            dimensions: data[0].dimensions,
+            year: data[0].year,
+            featured: data[0].featured,
+            quantity: data[0].quantity,
+            category: data[0].category
           };
-          
-          // Handle the image URL field which could be in different formats
-          if (item.image_url !== undefined) {
-            newArtwork.imageUrl = item.image_url;
-          } else if (item.imageUrl !== undefined) {
-            newArtwork.imageUrl = item.imageUrl;
-          } else {
-            newArtwork.imageUrl = artwork.imageUrl; // Use the original value
-          }
-          
-          // Add optional fields if they exist in the database record
-          if (item.medium !== undefined) newArtwork.medium = item.medium;
-          if (item.dimensions !== undefined) newArtwork.dimensions = item.dimensions;
-          if (item.year !== undefined) newArtwork.year = item.year;
-          if (item.featured !== undefined) newArtwork.featured = item.featured;
-          if (item.quantity !== undefined) newArtwork.quantity = item.quantity;
-          if (item.category !== undefined) newArtwork.category = item.category;
-          if (item.type !== undefined) newArtwork.type = item.type;
-          
-          setArtworks([...artworks, newArtwork as Artwork]);
+          setArtworks([...artworks, newArtwork]);
         }
       }
       
