@@ -4,7 +4,7 @@ import { Camera, Heart, ShoppingCart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { ARPreview } from './ARPreview';
-import { Artwork } from '../context/AppContext';
+import { Artwork } from '../types/artwork';
 
 interface FeaturedArtworksProps {
   artworks: Artwork[];
