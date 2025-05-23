@@ -71,12 +71,36 @@ const ArtworkManager: React.FC = () => {
       setLoading(true);
       console.log('Saving artwork to database:', artwork);
       
+      // Create a sanitized version of the artwork data that only includes fields we know exist in the database
+      // This is based on the error message about missing 'category' column
+      const sanitizeData = (data: any) => {
+        // Include only fields we know exist in the database
+        // Adjust this list based on your actual database schema
+        const safeFields = [
+          'title', 'artist', 'description', 'price', 'imageUrl',
+          'medium', 'dimensions', 'year', 'featured', 'quantity', 'type'
+          // Using 'type' instead of 'category' to match the database schema
+        ];
+        
+        const sanitized: any = {};
+        safeFields.forEach(field => {
+          if (data[field] !== undefined) {
+            sanitized[field] = data[field];
+          }
+        });
+        
+        return sanitized;
+      };
+      
       if (selectedArtwork) {
         // Update existing artwork
         console.log('Updating existing artwork with ID:', selectedArtwork.id);
         
-        // Remove id from the update payload
-        const { id, ...updateData } = artwork;
+        // Remove id from the update payload and sanitize data
+        const { id, ...rawUpdateData } = artwork;
+        const updateData = sanitizeData(rawUpdateData);
+        
+        console.log('Sanitized update data:', updateData);
         
         const { error } = await supabase
           .from('artworks')
@@ -96,8 +120,11 @@ const ArtworkManager: React.FC = () => {
         // Create new artwork
         console.log('Creating new artwork');
         
-        // Remove any id field if it exists
-        const { id, ...newArtworkData } = artwork;
+        // Remove any id field if it exists and sanitize data
+        const { id, ...rawArtworkData } = artwork;
+        const newArtworkData = sanitizeData(rawArtworkData);
+        
+        console.log('Sanitized insert data:', newArtworkData);
         
         const { data, error } = await supabase
           .from('artworks')
@@ -170,7 +197,7 @@ const ArtworkManager: React.FC = () => {
                 Price
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Category
+                Type
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
@@ -204,7 +231,7 @@ const ArtworkManager: React.FC = () => {
                     <div className="text-sm text-gray-500">${artwork.price.toFixed(2)}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500">{artwork.category || 'N/A'}</div>
+                    <div className="text-sm text-gray-500">{artwork.type || 'N/A'}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button
@@ -254,7 +281,7 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
       imageUrl: '',
       medium: '',
       dimensions: '',
-      category: '',
+      type: '',
       year: '',
       featured: false,
       quantity: 1
@@ -443,15 +470,15 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Category
+                Type
               </label>
               <select
-                name="category"
-                value={formData.category || ''}
+                name="type"
+                value={formData.type || ''}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               >
-                <option value="">Select Category</option>
+                <option value="">Select Type</option>
                 <option value="Painting">Painting</option>
                 <option value="Sculpture">Sculpture</option>
                 <option value="Photography">Photography</option>
@@ -459,6 +486,7 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
                 <option value="Mixed Media">Mixed Media</option>
                 <option value="Other">Other</option>
               </select>
+              <p className="text-xs text-gray-500 mt-1">This will be stored as the artwork type</p>
             </div>
             
             <div>

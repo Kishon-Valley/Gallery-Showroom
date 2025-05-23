@@ -7,7 +7,7 @@ export interface Artwork {
   description: string;
   dimensions?: string;
   medium?: string;
-  category?: string;
+  type?: string; // Changed from category to type to match database schema
   featured?: boolean;
   year?: string;
   quantity?: number;
