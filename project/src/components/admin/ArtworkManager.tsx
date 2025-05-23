@@ -22,7 +22,24 @@ const ArtworkManager: React.FC = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setArtworks(data || []);
+      
+      // Map snake_case database columns to camelCase properties
+      const mappedData = data ? data.map(item => ({
+        id: item.id,
+        title: item.title,
+        artist: item.artist,
+        description: item.description,
+        price: item.price,
+        imageUrl: item.image_url, // Map from snake_case to camelCase
+        medium: item.medium,
+        dimensions: item.dimensions,
+        year: item.year,
+        featured: item.featured,
+        quantity: item.quantity,
+        category: item.category
+      })) : [];
+      
+      setArtworks(mappedData);
     } catch (error: any) {
       console.error('Error fetching artworks:', error);
       setError(error.message);
@@ -77,7 +94,7 @@ const ArtworkManager: React.FC = () => {
         artist: artwork.artist,
         description: artwork.description,
         price: artwork.price,
-        imageUrl: artwork.imageUrl,
+        image_url: artwork.imageUrl, // Use snake_case for database column
         medium: artwork.medium,
         dimensions: artwork.dimensions,
         year: artwork.year,
@@ -99,8 +116,14 @@ const ArtworkManager: React.FC = () => {
           throw error;
         }
         
+        // Map the sanitizedArtwork back to camelCase for the UI
+        const updatedArtworkData = {
+          ...artwork,
+          imageUrl: sanitizedArtwork.image_url // Map from snake_case to camelCase
+        };
+        
         setArtworks(artworks.map(a => 
-          a.id === selectedArtwork.id ? { ...a, ...sanitizedArtwork } : a
+          a.id === selectedArtwork.id ? updatedArtworkData : a
         ));
       } else {
         // Create new artwork
@@ -116,7 +139,22 @@ const ArtworkManager: React.FC = () => {
         }
         
         if (data && data.length > 0) {
-          setArtworks([...artworks, data[0]]);
+          // Map the returned data from snake_case to camelCase
+          const newArtwork = {
+            id: data[0].id,
+            title: data[0].title,
+            artist: data[0].artist,
+            description: data[0].description,
+            price: data[0].price,
+            imageUrl: data[0].image_url, // Map from snake_case to camelCase
+            medium: data[0].medium,
+            dimensions: data[0].dimensions,
+            year: data[0].year,
+            featured: data[0].featured,
+            quantity: data[0].quantity,
+            category: data[0].category
+          };
+          setArtworks([...artworks, newArtwork]);
         }
       }
       

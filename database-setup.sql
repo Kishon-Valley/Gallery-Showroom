@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS public.artworks (
     medium TEXT,
     dimensions TEXT,
     year TEXT,
-    imageUrl TEXT,
+    image_url TEXT,
     featured BOOLEAN DEFAULT false,
     quantity INTEGER DEFAULT 1,
     category TEXT,
