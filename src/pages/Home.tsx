@@ -1,12 +1,66 @@
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { FeaturedArtworks } from '../components/FeaturedArtworks';
-import { artworks } from '../data/artworks';
+import { supabase } from '../lib/supabase';
+import { Artwork as DbArtwork } from '../types/artwork';
+import { Artwork as FrontendArtwork } from '../context/AppContext';
 
 export const Home = () => {
-  // Take only the first three artworks for featured section
-  const featuredThree = artworks.slice(0, 3);
+  const [featuredArtworks, setFeaturedArtworks] = useState<FrontendArtwork[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchFeaturedArtworks();
+  }, []);
+
+  const fetchFeaturedArtworks = async () => {
+    try {
+      setLoading(true);
+      // First try to fetch artworks marked as featured
+      let { data, error } = await supabase
+        .from('artworks')
+        .select('*')
+        .eq('featured', true)
+        .limit(3);
+
+      // If no featured artworks or error, fetch the most recent ones
+      if (error || !data || data.length === 0) {
+        console.log('No featured artworks found, fetching recent ones');
+        const { data: recentData, error: recentError } = await supabase
+          .from('artworks')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(3);
+
+        if (recentError) throw recentError;
+        data = recentData;
+      }
+
+      // Map database fields to component expected fields
+      const mappedArtworks = data?.map((artwork: DbArtwork) => ({
+        id: artwork.id,
+        title: artwork.title,
+        artist: artwork.artist,
+        description: artwork.description,
+        price: artwork.price,
+        imageUrl: artwork.imageUrl, // Map imageUrl to imageUrl for the component
+        dimensions: artwork.dimensions,
+        medium: artwork.medium,
+        year: artwork.year,
+        quantity: artwork.quantity
+      })) || [];
+
+      setFeaturedArtworks(mappedArtworks);
+    } catch (error: any) {
+      console.error('Error fetching featured artworks:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <main className="bg-white">
@@ -67,7 +121,21 @@ export const Home = () => {
               the pinnacle of contemporary artistic expression.
             </p>
           </motion.div>
-          <FeaturedArtworks artworks={featuredThree} />
+          {loading ? (
+            <div className="flex justify-center items-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
+            </div>
+          ) : error ? (
+            <div className="text-center py-10 text-red-600">
+              <p>Error loading artworks. Please try again later.</p>
+            </div>
+          ) : featuredArtworks.length === 0 ? (
+            <div className="text-center py-10">
+              <p>No artworks found. Check back soon for our curated collection.</p>
+            </div>
+          ) : (
+            <FeaturedArtworks artworks={featuredArtworks} />
+          )}
           <div className="text-center mt-12">
             <Link to="/gallery">
               <motion.button

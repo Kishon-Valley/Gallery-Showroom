@@ -77,7 +77,7 @@ const ArtworkManager: React.FC = () => {
         artist: artwork.artist,
         description: artwork.description,
         price: artwork.price,
-        image_url: artwork.image_url,
+        imageUrl: artwork.imageUrl,
         medium: artwork.medium,
         dimensions: artwork.dimensions,
         year: artwork.year,
@@ -194,7 +194,7 @@ const ArtworkManager: React.FC = () => {
                 <tr key={artwork.id}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <img 
-                      src={artwork.image_url} 
+                      src={artwork.imageUrl} 
                       alt={artwork.title} 
                       className="h-16 w-16 object-cover rounded"
                     />
@@ -256,7 +256,7 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
       artist: '',
       description: '',
       price: 0,
-      image_url: '',
+      imageUrl: '',
       medium: '',
       dimensions: '',
       category: '',
@@ -288,7 +288,7 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
   };
 
   const uploadImage = async (): Promise<string> => {
-    if (!imageFile) return formData.image_url || '';
+    if (!imageFile) return formData.imageUrl || '';
     
     try {
       setUploading(true);
@@ -363,7 +363,7 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
       }
       
       // Handle image upload
-      let imageUrl = formData.image_url;
+      let imageUrl = formData.imageUrl;
       if (imageFile) {
         console.log('Uploading image file...');
         setUploading(true);
@@ -380,7 +380,7 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
       // Prepare artwork data with image URL
       const artworkData = {
         ...formData,
-        image_url: imageUrl,
+        imageUrl: imageUrl,
         price: typeof formData.price === 'string' ? parseFloat(formData.price) : formData.price || 0,
         quantity: typeof formData.quantity === 'string' ? parseInt(formData.quantity as string) : formData.quantity || 1,
       } as Artwork;
@@ -538,10 +538,10 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Image
               </label>
-              {formData.image_url && (
+              {formData.imageUrl && (
                 <div className="mb-2">
                   <img 
-                    src={formData.image_url} 
+                    src={formData.imageUrl} 
                     alt="Artwork preview" 
                     className="h-40 object-contain"
                   />

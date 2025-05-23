@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS public.artworks (
     medium TEXT,
     dimensions TEXT,
     year TEXT,
-    image_url TEXT,
+    imageUrl TEXT,
     featured BOOLEAN DEFAULT false,
     quantity INTEGER DEFAULT 1,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
