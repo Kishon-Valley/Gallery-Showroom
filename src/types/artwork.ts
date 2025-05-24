@@ -11,4 +11,5 @@ export interface Artwork {
   featured?: boolean;
   year?: string;
   quantity?: number;
+  category?: string;
 }

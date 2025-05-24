@@ -127,7 +127,7 @@ const ArtworkManager: React.FC = () => {
         artist: artwork.artist,
         description: artwork.description,
         price: artwork.price,
-        image_url: artwork.imageUrl, // Map imageUrl to image_url for database
+        imageUrl: artwork.imageUrl, // Map imageUrl to image_url for database
         medium: artwork.medium,
         dimensions: artwork.dimensions,
         year: artwork.year,
@@ -172,7 +172,7 @@ const ArtworkManager: React.FC = () => {
             artist: data[0].artist,
             description: data[0].description,
             price: data[0].price,
-            imageUrl: data[0].image_url, // Map image_url back to imageUrl for the frontend
+            imageUrl: data[0].image_url, 
             medium: data[0].medium,
             dimensions: data[0].dimensions,
             year: data[0].year,

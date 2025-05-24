@@ -1,4 +1,4 @@
-import { Artwork } from '../context/AppContext';
+import { Artwork } from '../types/artwork';
 
 export const artworkData: Artwork[] = [
   {
