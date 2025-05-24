@@ -11,14 +11,36 @@ export const Home = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check database schema first
+    const checkDatabaseSchema = async () => {
+      try {
+        console.log('Checking database schema...');
+        const { data, error } = await supabase
+          .from('artworks')
+          .select('id, featured')
+          .limit(1);
+          
+        console.log('Schema check result:', data);
+        console.log('Schema check error:', error);
+      } catch (error) {
+        console.error('Error checking schema:', error);
+      }
+    };
+    
+    checkDatabaseSchema();
+    
     const fetchFeaturedArtworks = async () => {
       try {
         setLoading(true);
+        console.log('Fetching featured artworks...');
         const { data, error } = await supabase
           .from('artworks')
           .select('*')
           .eq('featured', true)
           .limit(3);
+        
+        console.log('Featured artworks data:', data);
+        console.log('Featured artworks error:', error);
 
         if (error) {
           throw error;

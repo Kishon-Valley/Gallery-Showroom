@@ -136,6 +136,9 @@ const ArtworkManager: React.FC = () => {
         category: artwork.category
       };
       
+      console.log('Artwork featured status:', artwork.featured);
+      console.log('Sanitized artwork data:', sanitizedArtwork);
+      
       if (selectedArtwork) {
         // Update existing artwork
         console.log('Updating artwork with ID:', selectedArtwork.id);
@@ -480,6 +483,7 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Form submission started');
+    console.log('Form data featured status:', formData.featured);
     
     try {
       // Validate required fields
