@@ -94,7 +94,22 @@ export const Gallery = () => {
           setArtworks(fallbackArtworks as unknown as Artwork[]);
         } else if (data && data.length > 0) {
           console.log('Fetched artworks from database:', data);
-          setArtworks(data);
+          // Map database fields to expected format
+          const mappedArtworks = data.map(item => ({
+            id: item.id,
+            title: item.title,
+            artist: item.artist,
+            description: item.description,
+            price: item.price,
+            imageUrl: item.image_url || 'https://via.placeholder.com/300x300?text=No+Image',
+            dimensions: item.dimensions,
+            medium: item.medium,
+            year: item.year,
+            category: item.category,
+            featured: item.featured,
+            quantity: item.quantity
+          }));
+          setArtworks(mappedArtworks);
           setError(null);
         } else {
           console.log('No artworks found in database, using fallback data');
