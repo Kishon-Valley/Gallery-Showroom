@@ -1,12 +1,56 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { FeaturedArtworks } from '../components/FeaturedArtworks';
-import { artworks } from '../data/artworks';
+import { supabase } from '../lib/supabase';
+import { Artwork } from '../types/artwork';
 
 export const Home = () => {
-  // Take only the first three artworks for featured section
-  const featuredThree = artworks.slice(0, 3);
+  const [featuredArtworks, setFeaturedArtworks] = useState<Artwork[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFeaturedArtworks = async () => {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('artworks')
+          .select('*')
+          .eq('featured', true)
+          .limit(3);
+
+        if (error) {
+          throw error;
+        }
+
+        if (data) {
+          // Map the database fields to the Artwork interface
+          const artworks: Artwork[] = data.map(item => ({
+            id: item.id,
+            title: item.title,
+            artist: item.artist,
+            description: item.description,
+            price: item.price,
+            imageUrl: item.imageUrl,
+            dimensions: item.dimensions,
+            medium: item.medium,
+            year: item.year,
+            featured: item.featured,
+            category: item.category,
+            quantity: item.quantity
+          }));
+          setFeaturedArtworks(artworks);
+        }
+      } catch (error) {
+        console.error('Error fetching featured artworks:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFeaturedArtworks();
+  }, []);
 
   return (
     <main className="bg-white">
@@ -67,7 +111,15 @@ export const Home = () => {
               the pinnacle of contemporary artistic expression.
             </p>
           </motion.div>
-          <FeaturedArtworks artworks={featuredThree} />
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
+            </div>
+          ) : featuredArtworks.length > 0 ? (
+            <FeaturedArtworks artworks={featuredArtworks} />
+          ) : (
+            <p className="text-center text-gray-500">No featured artworks available. Add some in the admin panel!</p>
+          )}
           <div className="text-center mt-12">
             <Link to="/gallery">
               <motion.button
