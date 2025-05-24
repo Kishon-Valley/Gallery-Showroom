@@ -19,5 +19,9 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true
+  },
+  // Enable realtime subscriptions
+  db: {
+    schema: 'public',
   }
 }); 
