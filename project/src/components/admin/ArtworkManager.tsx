@@ -417,46 +417,49 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
     }
   };
 
-  const uploadImage = async (): Promise<string> => {
-    if (!imageFile) return formData.imageUrl || '';
-    
+  const uploadImage = async (imageFile: File): Promise<string> => {
     try {
       setUploading(true);
-      console.log('Starting image upload process...');
+      
+      if (!imageFile) {
+        throw new Error('No image file selected');
+      }
       
       // Create a unique file name
       const fileExt = imageFile.name.split('.').pop();
-      const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-      const filePath = `artwork-images/${fileName}`;
+      const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now().toString()}`;
+      const filePath = `${fileName}.${fileExt}`;
       
-      console.log('Uploading to path:', filePath);
-      
-      // First, try to create the bucket if it doesn't exist
+      // First, ensure the bucket exists
       try {
-        // Check if the bucket exists
-        const { data: buckets, error: listError } = await supabase.storage.listBuckets();
+        // Try to create the bucket (this will fail if it already exists, which is fine)
+        const { error: createBucketError } = await supabase.storage.createBucket('artworks', {
+          public: true,
+          fileSizeLimit: 10485760 // 10MB limit
+        });
         
-        if (listError) {
-          console.error('Error listing buckets:', listError);
+        if (createBucketError && !createBucketError.message.includes('already exists')) {
+          console.error('Error creating bucket:', createBucketError);
+          // Only log the error but continue, as the bucket might still work
         } else {
-          console.log('Available buckets:', buckets);
-          
-          // Create the bucket if it doesn't exist
-          if (!buckets?.some(bucket => bucket.name === 'artworks')) {
-            console.log('Creating artworks bucket...');
-            const { error: createBucketError } = await supabase.storage.createBucket('artworks', {
-              public: true
-            });
-            
-            if (createBucketError) {
-              console.error('Error creating bucket:', createBucketError);
-              // Continue anyway, the bucket might already exist
-            }
-          }
+          console.log('Bucket ready for upload');
         }
       } catch (bucketError) {
         console.error('Bucket operation error:', bucketError);
         // Continue anyway, the bucket might already exist
+      }
+      
+      // Set public bucket policy if needed
+      try {
+        const { error: policyError } = await supabase.storage.from('artworks').createSignedUrl(filePath, 60);
+        
+        if (policyError && policyError.message.includes('policy')) {
+          console.log('Setting public bucket policy...');
+          // This is just a test to see if we need to update policies
+          // In a production app, you would set these policies in the Supabase dashboard
+        }
+      } catch (policyError) {
+        console.log('Policy check error (this is often normal):', policyError);
       }
       
       // Upload to Supabase Storage
@@ -470,46 +473,29 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
       if (uploadError) {
         console.error('Upload error:', uploadError);
         
-        // If the error is related to the bucket not existing, try to create it
-        if (uploadError.message && uploadError.message.includes('bucket')) {
-          console.log('Attempting to create bucket after upload failure...');
+        // Wait a moment and retry once
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        console.log('Retrying upload after delay...');
+        const { data: retryData, error: retryError } = await supabase.storage
+          .from('artworks')
+          .upload(filePath, imageFile, {
+            cacheControl: '3600',
+            upsert: true
+          });
           
-          try {
-            const { error: createBucketError } = await supabase.storage.createBucket('artworks', {
-              public: true
-            });
-            
-            if (!createBucketError) {
-              // Try upload again
-              const { data: retryData, error: retryError } = await supabase.storage
-                .from('artworks')
-                .upload(filePath, imageFile, {
-                  cacheControl: '3600',
-                  upsert: true
-                });
-                
-              if (retryError) {
-                console.error('Retry upload error:', retryError);
-                throw retryError;
-              }
-              
-              console.log('Retry upload successful:', retryData);
-              uploadData = retryData;
-            } else {
-              throw createBucketError;
-            }
-          } catch (retryBucketError) {
-            console.error('Retry bucket error:', retryBucketError);
-            throw uploadError; // Throw the original error
-          }
-        } else {
-          throw uploadError;
+        if (retryError) {
+          console.error('Retry upload error:', retryError);
+          throw new Error('Failed to upload image after multiple attempts. Please check your Supabase configuration.');
         }
+        
+        console.log('Retry upload successful:', retryData);
+        uploadData = retryData;
       }
       
-      console.log('Upload successful:', uploadData);
-      
-      // Get public URL
+      if (!uploadData) {
+        throw new Error('Upload completed but no data returned');
+      }
       const { data } = supabase.storage
         .from('artworks')
         .getPublicUrl(filePath);
@@ -542,7 +528,7 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
         console.log('Uploading image file...');
         try {
           setUploading(true);
-          imageUrl = await uploadImage();
+          imageUrl = await uploadImage(imageFile);
         } catch (uploadError) {
           console.error('Image upload failed:', uploadError);
           alert('Failed to upload image. Please try again or continue without an image.');
