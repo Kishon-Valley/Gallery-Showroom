@@ -4,20 +4,63 @@ import { Heart, ShoppingCart, Camera } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
+import { Artwork } from '../types/artwork';
 
 export const Favorites = () => {
-  const { favorites, removeFromFavorites, addToCart, artworks, isDarkMode } = useAppContext();
+  const { favorites, removeFromFavorites, addToCart, isDarkMode } = useAppContext();
   const { isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
   
-  const [favoriteArtworks, setFavoriteArtworks] = useState(
-    artworks.filter(artwork => favorites.includes(artwork.id))
-  );
+  const [favoriteArtworks, setFavoriteArtworks] = useState<Artwork[]>([]);
+  const [loadingArtworks, setLoadingArtworks] = useState(true);
   
-  // Update favorite artworks when favorites change
+  // Fetch favorite artworks from Supabase when favorites change
   useEffect(() => {
-    setFavoriteArtworks(artworks.filter(artwork => favorites.includes(artwork.id)));
-  }, [favorites, artworks]);
+    const fetchFavoriteArtworks = async () => {
+      if (favorites.length === 0) {
+        setFavoriteArtworks([]);
+        setLoadingArtworks(false);
+        return;
+      }
+      
+      try {
+        setLoadingArtworks(true);
+        const { data, error } = await supabase
+          .from('artworks')
+          .select('*')
+          .in('id', favorites);
+          
+        if (error) {
+          console.error('Error fetching favorite artworks:', error);
+          setFavoriteArtworks([]);
+        } else if (data) {
+          // Map the database fields to the Artwork interface
+          const artworks: Artwork[] = data.map(item => ({
+            id: item.id,
+            title: item.title,
+            artist: item.artist,
+            description: item.description,
+            price: item.price,
+            imageUrl: item.imageUrl || item.image_url || 'https://via.placeholder.com/300x300?text=No+Image',
+            dimensions: item.dimensions,
+            medium: item.medium,
+            year: item.year,
+            featured: item.featured,
+            category: item.category,
+            quantity: item.quantity
+          }));
+          setFavoriteArtworks(artworks);
+        }
+      } catch (error) {
+        console.error('Error in fetchFavoriteArtworks:', error);
+      } finally {
+        setLoadingArtworks(false);
+      }
+    };
+    
+    fetchFavoriteArtworks();
+  }, [favorites]);
   
   // Redirect if not authenticated (handled by ProtectedRoute in App.tsx)
   // This is just a fallback
@@ -35,7 +78,7 @@ export const Favorites = () => {
     addToCart(artwork);
   };
   
-  if (loading) {
+  if (loading || loadingArtworks) {
     return (
       <div className={`min-h-screen pt-20 flex items-center justify-center ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
