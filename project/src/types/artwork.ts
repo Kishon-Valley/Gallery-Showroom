@@ -3,13 +3,12 @@
  * 
  * Note on database mapping:
  * - Application code uses camelCase (e.g., imageUrl)
- * - Database columns use snake_case (e.g., image_url)
  * - The mapping between these formats is handled in the data access layer
  */
 export interface Artwork {
   id: string;
   title: string;
-  imageUrl: string; // maps to image_url in database
+  imageUrl: string; 
   price: number;
   artist: string;
   description: string;

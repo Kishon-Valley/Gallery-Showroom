@@ -38,7 +38,7 @@ const ArtworkManager: React.FC = () => {
           category, 
           type, 
           created_at, 
-          image_url
+          imageUrl
         `)
         .order('created_at', { ascending: false });
 
@@ -57,7 +57,7 @@ const ArtworkManager: React.FC = () => {
           description: item.description,
           price: item.price,
           // Handle the image URL field - use default if not available
-          imageUrl: item.image_url || 'https://via.placeholder.com/300x300?text=No+Image'
+          imageUrl: item.imageUrl || 'https://via.placeholder.com/300x300?text=No+Image'
         };
         
         // Add optional fields if they exist in the database record
@@ -127,7 +127,7 @@ const ArtworkManager: React.FC = () => {
         artist: artwork.artist,
         description: artwork.description,
         price: artwork.price,
-        imageUrl: artwork.imageUrl, // Map imageUrl to image_url for database
+        imageUrl: artwork.imageUrl, 
         medium: artwork.medium,
         dimensions: artwork.dimensions,
         year: artwork.year,
@@ -172,7 +172,7 @@ const ArtworkManager: React.FC = () => {
             artist: data[0].artist,
             description: data[0].description,
             price: data[0].price,
-            imageUrl: data[0].image_url, 
+            imageUrl: data[0].imageUrl, 
             medium: data[0].medium,
             dimensions: data[0].dimensions,
             year: data[0].year,

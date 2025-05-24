@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ZoomIn, ZoomOut, RotateCcw, RotateCw, X, Camera } from 'lucide-react';
-import { Artwork } from '../context/AppContext';
+import { Artwork } from '../types/artwork';
 
 export interface ARPreviewProps {
   artwork: Artwork;
