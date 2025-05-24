@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Artwork } from '../types/artwork';
+import { RealtimeChannel } from '@supabase/supabase-js';
 
 // Import local images
 import image1 from '../img/image1.jpg';
@@ -78,53 +79,82 @@ export const Gallery = () => {
   const [error, setError] = useState<string | null>(null);
   
   // Fetch artworks from Supabase
-  useEffect(() => {
-    const fetchArtworks = async () => {
-      try {
-        setLoading(true);
-        
-        const { data, error } = await supabase
-          .from('artworks')
-          .select('*')
-          .order('created_at', { ascending: false });
-        
-        if (error) {
-          console.error('Error fetching artworks:', error);
-          setError('Failed to load artworks');
-          setArtworks(fallbackArtworks as unknown as Artwork[]);
-        } else if (data && data.length > 0) {
-          console.log('Fetched artworks from database:', data);
-          // Map database fields to expected format
-          const mappedArtworks = data.map(item => ({
-            id: item.id,
-            title: item.title,
-            artist: item.artist,
-            description: item.description,
-            price: item.price,
-            imageUrl: item.image_url || 'https://via.placeholder.com/300x300?text=No+Image',
-            dimensions: item.dimensions,
-            medium: item.medium,
-            year: item.year,
-            category: item.category,
-            featured: item.featured,
-            quantity: item.quantity
-          }));
-          setArtworks(mappedArtworks);
-          setError(null);
-        } else {
-          console.log('No artworks found in database, using fallback data');
-          setArtworks(fallbackArtworks as unknown as Artwork[]);
-        }
-      } catch (err) {
-        console.error('Error in fetchArtworks:', err);
-        setError('An unexpected error occurred');
+  const fetchArtworks = async () => {
+    try {
+      setLoading(true);
+      
+      const { data, error } = await supabase
+        .from('artworks')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('Error fetching artworks:', error);
+        setError('Failed to load artworks');
         setArtworks(fallbackArtworks as unknown as Artwork[]);
-      } finally {
-        setLoading(false);
+      } else if (data && data.length > 0) {
+        console.log('Fetched artworks from database:', data);
+        // Map database fields to expected format
+        const mappedArtworks = data.map(item => ({
+          id: item.id,
+          title: item.title,
+          artist: item.artist,
+          description: item.description,
+          price: item.price,
+          imageUrl: item.image_url || 'https://via.placeholder.com/300x300?text=No+Image',
+          dimensions: item.dimensions,
+          medium: item.medium,
+          year: item.year,
+          category: item.category,
+          featured: item.featured,
+          quantity: item.quantity
+        }));
+        console.log('Mapped artworks:', mappedArtworks);
+        setArtworks(mappedArtworks);
+        setError(null);
+      } else {
+        console.log('No artworks found in database, using fallback data');
+        setArtworks(fallbackArtworks as unknown as Artwork[]);
       }
+    } catch (err) {
+      console.error('Error in fetchArtworks:', err);
+      setError('An unexpected error occurred');
+      setArtworks(fallbackArtworks as unknown as Artwork[]);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Set up Supabase realtime subscription
+  useEffect(() => {
+    fetchArtworks();
+    
+    // Subscribe to changes in the artworks table
+    let subscription: RealtimeChannel;
+    
+    const setupSubscription = async () => {
+      // Subscribe to all changes in the artworks table
+      subscription = supabase
+        .channel('artworks-changes')
+        .on('postgres_changes', 
+          { event: '*', schema: 'public', table: 'artworks' }, 
+          (payload) => {
+            console.log('Realtime update received:', payload);
+            // Refresh the artwork list when any change occurs
+            fetchArtworks();
+          }
+        )
+        .subscribe();
     };
     
-    fetchArtworks();
+    setupSubscription();
+    
+    // Cleanup subscription when component unmounts
+    return () => {
+      if (subscription) {
+        supabase.removeChannel(subscription);
+      }
+    };
   }, []);
 
   const handleAddToCart = (artworkId: string) => {
