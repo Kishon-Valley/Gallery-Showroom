@@ -111,14 +111,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Initialize favorites from localStorage
   useEffect(() => {
     const savedFavorites = localStorage.getItem('favorites');
+    console.log('Loading favorites from localStorage:', savedFavorites);
     if (savedFavorites) {
-      setFavorites(JSON.parse(savedFavorites));
+      const parsedFavorites = JSON.parse(savedFavorites);
+      console.log('Parsed favorites:', parsedFavorites);
+      setFavorites(parsedFavorites);
     }
   }, []);
 
   // Save favorites to localStorage
   useEffect(() => {
+    console.log('Saving favorites to localStorage:', favorites);
     localStorage.setItem('favorites', JSON.stringify(favorites));
+    // Verify what was saved
+    const savedValue = localStorage.getItem('favorites');
+    console.log('Verified saved favorites:', savedValue);
   }, [favorites]);
 
   const toggleDarkMode = () => {
@@ -167,16 +174,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, 0);
 
   const addToFavorites = (id: string) => {
+    console.log('Adding to favorites, ID:', id);
     setFavorites(prev => {
       if (prev.includes(id)) {
+        console.log('ID already in favorites, not adding again');
         return prev;
       }
+      console.log('Adding new ID to favorites:', [...prev, id]);
       return [...prev, id];
     });
   };
 
   const removeFromFavorites = (id: string) => {
-    setFavorites(prev => prev.filter(itemId => itemId !== id));
+    console.log('Removing from favorites, ID:', id);
+    setFavorites(prev => {
+      console.log('Current favorites before removal:', prev);
+      const newFavorites = prev.filter(itemId => itemId !== id);
+      console.log('Favorites after removal:', newFavorites);
+      return newFavorites;
+    });
   };
 
   const isInFavorites = (id: string) => {

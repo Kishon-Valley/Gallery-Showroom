@@ -18,7 +18,10 @@ export const Favorites = () => {
   // Fetch favorite artworks from Supabase when favorites change
   useEffect(() => {
     const fetchFavoriteArtworks = async () => {
+      console.log('Current favorites in state:', favorites);
+      
       if (favorites.length === 0) {
+        console.log('No favorites found, clearing artwork list');
         setFavoriteArtworks([]);
         setLoadingArtworks(false);
         return;
@@ -26,15 +29,20 @@ export const Favorites = () => {
       
       try {
         setLoadingArtworks(true);
+        console.log('Fetching favorite artworks with IDs:', favorites);
+        
         const { data, error } = await supabase
           .from('artworks')
           .select('*')
           .in('id', favorites);
           
+        console.log('Supabase query result:', { data, error });
+        
         if (error) {
           console.error('Error fetching favorite artworks:', error);
           setFavoriteArtworks([]);
         } else if (data) {
+          console.log('Successfully fetched artwork data:', data);
           // Map the database fields to the Artwork interface
           const artworks: Artwork[] = data.map(item => ({
             id: item.id,
@@ -50,6 +58,7 @@ export const Favorites = () => {
             category: item.category,
             quantity: item.quantity
           }));
+          console.log('Mapped artworks to display:', artworks);
           setFavoriteArtworks(artworks);
         }
       } catch (error) {
