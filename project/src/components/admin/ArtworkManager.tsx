@@ -2,13 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Artwork } from '../../types/artwork';
 
+interface Category {
+  id: string;
+  name: string;
+  description?: string;
+}
+
 const ArtworkManager: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [artworks, setArtworks] = useState<Artwork[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
-
   useEffect(() => {
     fetchArtworks();
   }, []);
@@ -326,7 +331,73 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
   );
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+  
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
+  const fetchCategories = async () => {
+    try {
+      setLoadingCategories(true);
+      
+      // First check if the categories table exists
+      const { error: tableError } = await supabase
+        .from('categories')
+        .select('id')
+        .limit(1);
+      
+      // If categories table exists and no error
+      if (!tableError) {
+        // Fetch all categories
+        const { data, error } = await supabase
+          .from('categories')
+          .select('id, name')
+          .order('name', { ascending: true });
+        
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+          setCategories(data);
+        } else {
+          // Fallback to default categories if table exists but is empty
+          setCategories([
+            { id: 'painting', name: 'Painting' },
+            { id: 'sculpture', name: 'Sculpture' },
+            { id: 'photography', name: 'Photography' },
+            { id: 'digital', name: 'Digital' },
+            { id: 'mixed-media', name: 'Mixed Media' },
+            { id: 'other', name: 'Other' }
+          ]);
+        }
+      } else {
+        // Fallback to default categories if table doesn't exist
+        setCategories([
+          { id: 'painting', name: 'Painting' },
+          { id: 'sculpture', name: 'Sculpture' },
+          { id: 'photography', name: 'Photography' },
+          { id: 'digital', name: 'Digital' },
+          { id: 'mixed-media', name: 'Mixed Media' },
+          { id: 'other', name: 'Other' }
+        ]);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      // Fallback to default categories on error
+      setCategories([
+        { id: 'painting', name: 'Painting' },
+        { id: 'sculpture', name: 'Sculpture' },
+        { id: 'photography', name: 'Photography' },
+        { id: 'digital', name: 'Digital' },
+        { id: 'mixed-media', name: 'Mixed Media' },
+        { id: 'other', name: 'Other' }
+      ]);
+    } finally {
+      setLoadingCategories(false);
+    }
+  };
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     
@@ -360,27 +431,36 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
       
       console.log('Uploading to path:', filePath);
       
-      // Check if the storage bucket exists
-      const { data: buckets } = await supabase.storage.listBuckets();
-      console.log('Available buckets:', buckets);
-      
-      // Create the bucket if it doesn't exist
-      if (!buckets?.some(bucket => bucket.name === 'artworks')) {
-        console.log('Creating artworks bucket...');
-        const { error: createBucketError } = await supabase.storage.createBucket('artworks', {
-          public: true,
-          allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp'],
-          fileSizeLimit: 5242880 // 5MB
-        });
+      // First, try to create the bucket if it doesn't exist
+      try {
+        // Check if the bucket exists
+        const { data: buckets, error: listError } = await supabase.storage.listBuckets();
         
-        if (createBucketError) {
-          console.error('Error creating bucket:', createBucketError);
-          throw new Error('Failed to create storage bucket');
+        if (listError) {
+          console.error('Error listing buckets:', listError);
+        } else {
+          console.log('Available buckets:', buckets);
+          
+          // Create the bucket if it doesn't exist
+          if (!buckets?.some(bucket => bucket.name === 'artworks')) {
+            console.log('Creating artworks bucket...');
+            const { error: createBucketError } = await supabase.storage.createBucket('artworks', {
+              public: true
+            });
+            
+            if (createBucketError) {
+              console.error('Error creating bucket:', createBucketError);
+              // Continue anyway, the bucket might already exist
+            }
+          }
         }
+      } catch (bucketError) {
+        console.error('Bucket operation error:', bucketError);
+        // Continue anyway, the bucket might already exist
       }
       
       // Upload to Supabase Storage
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      let { data: uploadData, error: uploadError } = await supabase.storage
         .from('artworks')
         .upload(filePath, imageFile, {
           cacheControl: '3600',
@@ -389,7 +469,42 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
         
       if (uploadError) {
         console.error('Upload error:', uploadError);
-        throw uploadError;
+        
+        // If the error is related to the bucket not existing, try to create it
+        if (uploadError.message && uploadError.message.includes('bucket')) {
+          console.log('Attempting to create bucket after upload failure...');
+          
+          try {
+            const { error: createBucketError } = await supabase.storage.createBucket('artworks', {
+              public: true
+            });
+            
+            if (!createBucketError) {
+              // Try upload again
+              const { data: retryData, error: retryError } = await supabase.storage
+                .from('artworks')
+                .upload(filePath, imageFile, {
+                  cacheControl: '3600',
+                  upsert: true
+                });
+                
+              if (retryError) {
+                console.error('Retry upload error:', retryError);
+                throw retryError;
+              }
+              
+              console.log('Retry upload successful:', retryData);
+              uploadData = retryData;
+            } else {
+              throw createBucketError;
+            }
+          } catch (retryBucketError) {
+            console.error('Retry bucket error:', retryBucketError);
+            throw uploadError; // Throw the original error
+          }
+        } else {
+          throw uploadError;
+        }
       }
       
       console.log('Upload successful:', uploadData);
@@ -425,9 +540,22 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
       let imageUrl = formData.imageUrl;
       if (imageFile) {
         console.log('Uploading image file...');
-        setUploading(true);
-        imageUrl = await uploadImage();
-        setUploading(false);
+        try {
+          setUploading(true);
+          imageUrl = await uploadImage();
+        } catch (uploadError) {
+          console.error('Image upload failed:', uploadError);
+          alert('Failed to upload image. Please try again or continue without an image.');
+          // Ask if they want to continue without an image
+          if (!confirm('Do you want to continue saving the artwork without an image?')) {
+            setUploading(false);
+            return; // Stop the submission
+          }
+          // If they choose to continue, use a placeholder
+          imageUrl = 'https://via.placeholder.com/300x300?text=No+Image';
+        } finally {
+          setUploading(false);
+        }
       }
       
       // If we don't have an image URL and we're adding a new artwork, use a placeholder
@@ -514,14 +642,18 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
                 value={formData.category || ''}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                disabled={loadingCategories}
               >
                 <option value="">Select Category</option>
-                <option value="Painting">Painting</option>
-                <option value="Sculpture">Sculpture</option>
-                <option value="Photography">Photography</option>
-                <option value="Digital">Digital</option>
-                <option value="Mixed Media">Mixed Media</option>
-                <option value="Other">Other</option>
+                {loadingCategories ? (
+                  <option value="" disabled>Loading categories...</option>
+                ) : (
+                  categories.map(category => (
+                    <option key={category.id} value={category.name}>
+                      {category.name}
+                    </option>
+                  ))
+                )}
               </select>
             </div>
             
