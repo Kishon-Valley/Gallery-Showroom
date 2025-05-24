@@ -425,87 +425,25 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
       if (!imageFile) {
         throw new Error('No image file selected');
       }
-      
-      // Log Supabase connection info (without exposing keys)
-      console.log('Checking Supabase connection...');
-      const { data: authData, error: authError } = await supabase.auth.getSession();
-      if (authError) {
-        console.error('Auth error:', authError);
-      } else {
-        console.log('Auth session exists:', !!authData.session);
+
+      // Validate file size (10MB limit)
+      if (imageFile.size > 10 * 1024 * 1024) {
+        throw new Error('File size exceeds 10MB limit');
+      }
+
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowedTypes.includes(imageFile.type)) {
+        throw new Error('Invalid file type. Please upload a JPEG, PNG, GIF, or WebP image.');
       }
       
-      // Create a unique file name
-      const fileExt = imageFile.name.split('.').pop();
-      const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now().toString()}`;
-      const filePath = `${fileName}.${fileExt}`;
-      console.log('Generated file path:', filePath);
+      // Create a unique file name with timestamp
+      const fileExt = imageFile.name.split('.').pop()?.toLowerCase();
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+      const filePath = `artworks/${fileName}`;
       
-      // Check if storage API is accessible
-      console.log('Testing storage API access...');
-      try {
-        const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
-        if (bucketsError) {
-          console.error('Cannot access storage API:', bucketsError);
-          // This is critical - if we can't list buckets, we likely have API/auth issues
-          alert('Storage API access error: ' + bucketsError.message);
-        } else {
-          console.log('Available buckets:', buckets?.map(b => b.name).join(', ') || 'none');
-        }
-      } catch (storageError) {
-        console.error('Storage API error:', storageError);
-      }
-      
-      // First, ensure the bucket exists
-      console.log('Creating or verifying artworks bucket...');
-      try {
-        // Try to create the bucket (this will fail if it already exists, which is fine)
-        const { error: createBucketError } = await supabase.storage.createBucket('artworks', {
-          public: true,
-          fileSizeLimit: 10485760 // 10MB limit
-        });
-        
-        if (createBucketError) {
-          if (createBucketError.message.includes('already exists')) {
-            console.log('Bucket already exists, which is fine');
-          } else {
-            console.error('Error creating bucket:', createBucketError);
-            // This is important - log the full error details
-            console.error('Error details:', JSON.stringify(createBucketError));
-            alert('Bucket creation error: ' + createBucketError.message);
-          }
-        } else {
-          console.log('Bucket created successfully');
-        }
-      } catch (bucketError) {
-        console.error('Bucket operation error:', bucketError);
-        alert('Bucket operation error: ' + (bucketError instanceof Error ? bucketError.message : String(bucketError)));
-      }
-      
-      // Try a small test upload first
-      console.log('Attempting test upload...');
-      try {
-        const testBlob = new Blob(['test'], { type: 'text/plain' });
-        const { data: testData, error: testError } = await supabase.storage
-          .from('artworks')
-          .upload('test.txt', testBlob, {
-            cacheControl: '3600',
-            upsert: true
-          });
-          
-        if (testError) {
-          console.error('Test upload failed:', testError);
-          alert('Test upload failed: ' + testError.message);
-        } else {
-          console.log('Test upload succeeded:', testData);
-        }
-      } catch (testError) {
-        console.error('Test upload exception:', testError);
-      }
-      
-      // Now try the actual file upload
-      console.log('Uploading actual file to:', filePath);
-      let { data: uploadData, error: uploadError } = await supabase.storage
+      // Upload to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
         .from('artworks')
         .upload(filePath, imageFile, {
           cacheControl: '3600',
@@ -514,47 +452,26 @@ const ArtworkForm: React.FC<ArtworkFormProps> = ({ artwork, onSubmit, onCancel }
         
       if (uploadError) {
         console.error('Upload error:', uploadError);
-        console.error('Error details:', JSON.stringify(uploadError));
-        
-        // Wait a moment and retry once
-        console.log('Waiting before retry...');
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        console.log('Retrying upload after delay...');
-        const { data: retryData, error: retryError } = await supabase.storage
-          .from('artworks')
-          .upload(filePath, imageFile, {
-            cacheControl: '3600',
-            upsert: true
-          });
-          
-        if (retryError) {
-          console.error('Retry upload error:', retryError);
-          console.error('Retry error details:', JSON.stringify(retryError));
-          alert('Upload failed after retry: ' + retryError.message);
-          throw new Error('Failed to upload image after multiple attempts: ' + retryError.message);
-        }
-        
-        console.log('Retry upload successful:', retryData);
-        uploadData = retryData;
-      } else {
-        console.log('Upload successful on first attempt:', uploadData);
+        throw new Error(`Upload failed: ${uploadError.message}`);
       }
       
       if (!uploadData) {
-        console.error('No upload data returned');
         throw new Error('Upload completed but no data returned');
       }
-      const { data } = supabase.storage
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
         .from('artworks')
         .getPublicUrl(filePath);
       
-      console.log('Public URL:', data.publicUrl);
-      
-      return data.publicUrl;
-    } catch (error) {
+      if (!urlData?.publicUrl) {
+        throw new Error('Failed to get public URL for uploaded image');
+      }
+
+      return urlData.publicUrl;
+    } catch (error: any) {
       console.error('Error uploading image:', error);
-      throw new Error('Failed to upload image. Please try again.');
+      throw new Error(error.message || 'Failed to upload image. Please try again.');
     } finally {
       setUploading(false);
     }
