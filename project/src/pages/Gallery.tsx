@@ -101,7 +101,8 @@ export const Gallery = () => {
           artist: item.artist,
           description: item.description,
           price: item.price,
-          imageUrl: item.image_url || 'https://via.placeholder.com/300x300?text=No+Image',
+          // Handle both camelCase and snake_case field names from Supabase
+          imageUrl: item.imageUrl || item.image_url || 'https://via.placeholder.com/300x300?text=No+Image',
           dimensions: item.dimensions,
           medium: item.medium,
           year: item.year,
