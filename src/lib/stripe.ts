@@ -1,6 +1,4 @@
 // Function to handle checkout process using our API route
-
-// Function to handle checkout process using our API route
 export async function redirectToStripeCheckout(cart: any[]) {
   try {
     console.log('Starting checkout process with cart items:', cart);
@@ -18,13 +16,23 @@ export async function redirectToStripeCheckout(cart: any[]) {
       body: JSON.stringify({ cart }),
     });
     
+    // Log the response status for debugging
+    console.log('Checkout session response status:', response.status);
+    
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Checkout session creation failed:', errorData);
-      throw new Error(errorData.error || 'Failed to create checkout session');
+      let errorMessage = 'Failed to create checkout session';
+      try {
+        const errorData = await response.json();
+        console.error('Checkout session creation failed:', errorData);
+        errorMessage = errorData.error || errorMessage;
+      } catch (parseError) {
+        console.error('Could not parse error response:', parseError);
+      }
+      throw new Error(errorMessage);
     }
     
     const { url } = await response.json();
+    console.log('Received checkout URL, redirecting...');
     
     // Redirect to Stripe Checkout
     window.location.href = url;

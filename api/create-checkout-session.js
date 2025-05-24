@@ -3,7 +3,14 @@
 import Stripe from 'stripe';
 
 // Initialize Stripe with the appropriate key
-const stripe = new Stripe(process.env.VITE_STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY);
+const stripeKey = process.env.VITE_STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY;
+
+// Check if we have a valid Stripe key
+if (!stripeKey) {
+  console.error('Missing Stripe secret key in environment variables');
+}
+
+const stripe = new Stripe(stripeKey);
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -11,6 +18,11 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Check if Stripe is properly initialized
+    if (!stripeKey) {
+      return res.status(500).json({ error: 'Stripe configuration error. Please check server logs.' });
+    }
+    
     const { cart } = req.body;
     
     if (!cart || !Array.isArray(cart) || cart.length === 0) {
@@ -49,15 +61,26 @@ export default async function handler(req, res) {
     const baseUrl = `${protocol}://${host}`;
 
     // Create Stripe checkout session
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: lineItems,
-      mode: 'payment',
-      success_url: `${baseUrl}/cart?success=true`,
-      cancel_url: `${baseUrl}/cart?canceled=true`,
-    });
+    try {
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: lineItems,
+        mode: 'payment',
+        success_url: `${baseUrl}/cart?success=true`,
+        cancel_url: `${baseUrl}/cart?canceled=true`,
+      });
 
-    res.status(200).json({ url: session.url });
+      console.log('Stripe session created successfully');
+      res.status(200).json({ url: session.url });
+    } catch (stripeError) {
+      console.error('Stripe API error:', stripeError.message);
+      // Return a more detailed error message for debugging
+      res.status(500).json({ 
+        error: 'Failed to create checkout session', 
+        details: stripeError.message,
+        type: stripeError.type
+      });
+    }
   } catch (error) {
     console.error('Error creating checkout session:', error);
     res.status(500).json({ error: 'Failed to create checkout session' });
