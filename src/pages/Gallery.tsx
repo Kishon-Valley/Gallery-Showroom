@@ -1,18 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, ShoppingCart, Video } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
+import { Artwork as DbArtwork } from '../types/artwork';
+import { Artwork as FrontendArtwork } from '../context/AppContext';
 
-// Import local images
+// Import local images as fallbacks
 import image1 from '../img/image1.jpg';
 import image2 from '../img/image2.jpg';
 import image3 from '../img/image3.jpg';
 import image4 from '../img/image4.jpg';
 
-// Sample artwork data
-const artworks = [
+// Fallback artwork data in case database fetch fails
+const fallbackArtworks = [
   {
     id: "1",
     title: 'Vibrant Abstraction',
@@ -52,26 +55,6 @@ const artworks = [
     medium: 'Acrylic on Canvas',
     price: 1500,
     description: 'A modern composition with geometric elements and a sophisticated color palette.'
-  },
-  {
-    id: "5",
-    title: 'Nature\'s Whisper',
-    imageUrl: 'https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=744&q=80',
-    artist: 'Olivia Parker',
-    dimensions: '36" x 48"',
-    medium: 'Mixed Media',
-    price: 2200,
-    description: 'A captivating nature scene that whispers the secrets of the forest.'
-  },
-  {
-    id: "6",
-    title: 'Geometric Visions',
-    imageUrl: 'https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
-    artist: 'David Kim',
-    dimensions: '20" x 30"',
-    medium: 'Acrylic on Wood',
-    price: 1500,
-    description: 'A visionary geometric composition with precise forms and vibrant colors.'
   }
 ];
 
@@ -91,6 +74,58 @@ export const Gallery = () => {
   const [showARTooltip, setShowARTooltip] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authModalAction, setAuthModalAction] = useState<'cart' | 'favorite'>('cart');
+  const [artworks, setArtworks] = useState<FrontendArtwork[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Fetch artworks from Supabase when component mounts
+  useEffect(() => {
+    fetchArtworks();
+  }, []);
+  
+  // Function to fetch artworks from Supabase
+  const fetchArtworks = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Fetch all artworks from the database
+      const { data, error } = await supabase
+        .from('artworks')
+        .select('*');
+      
+      if (error) {
+        throw error;
+      }
+      
+      if (!data || data.length === 0) {
+        console.log('No artworks found in database, using fallback data');
+        setArtworks(fallbackArtworks);
+      } else {
+        // Map database fields to component expected fields
+        const mappedArtworks = data.map((artwork: DbArtwork) => ({
+          id: artwork.id,
+          title: artwork.title,
+          artist: artwork.artist,
+          description: artwork.description,
+          price: artwork.price,
+          imageUrl: artwork.imageUrl,
+          dimensions: artwork.dimensions,
+          medium: artwork.medium,
+          year: artwork.year
+        }));
+        
+        console.log('Fetched artworks from database:', mappedArtworks);
+        setArtworks(mappedArtworks);
+      }
+    } catch (err) {
+      console.error('Error fetching artworks:', err);
+      setError('Failed to load artworks');
+      setArtworks(fallbackArtworks);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAddToCart = (artworkId: string) => {
     if (!isAuthenticated) {
@@ -147,10 +182,24 @@ export const Gallery = () => {
     setShowAuthModal(false);
   };
 
+  if (loading) {
+    return (
+      <div className={`min-h-screen pt-20 flex items-center justify-center ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
   return (
     <div className={`min-h-screen pt-20 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="text-3xl font-bold mb-8">Art Gallery</h1>
+        
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+            <p>{error}</p>
+          </div>
+        )}
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {artworks.map(artwork => (
