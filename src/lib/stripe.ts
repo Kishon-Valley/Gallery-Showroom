@@ -8,10 +8,10 @@ export async function redirectToStripeCheckout(cart: any[]) {
     }
     
     // Call our API route to create a checkout session
-    // Use the correct API endpoint path - either relative or absolute depending on deployment
-    const apiUrl = window.location.hostname === 'localhost' 
-      ? '/api/create-checkout-session'
-      : `${window.location.origin}/api/create-checkout-session`;
+    // Always use the relative path for API endpoint - works for both local and Vercel deployment
+    const apiUrl = '/api/create-checkout-session';
+    console.log('Using API endpoint:', apiUrl);
+    
     const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {

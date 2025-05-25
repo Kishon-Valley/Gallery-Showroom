@@ -8,6 +8,7 @@ const stripeKey = process.env.VITE_STRIPE_SECRET_KEY || process.env.STRIPE_SECRE
 // Check if we have a valid Stripe key
 if (!stripeKey) {
   console.error('Missing Stripe secret key in environment variables');
+  // Continue execution - we'll handle this in the handler function
 }
 
 const stripe = new Stripe(stripeKey);
