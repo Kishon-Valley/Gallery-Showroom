@@ -1,6 +1,55 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+
+// Import the Artwork interface from types
 import { Artwork } from '../types/artwork';
-import { supabase } from '../lib/supabase';
+
+// Sample artwork data
+const artworkData: Artwork[] = [
+  {
+    id: '1',
+    title: 'Sunset Horizon',
+    artist: 'Emma Johnson',
+    description: 'A vibrant depiction of a sunset over calm waters, with rich oranges and purples reflecting on the surface.',
+    price: 1200,
+    imageUrl: 'https://images.unsplash.com/photo-1518998053901-5348d3961a04?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80',
+    dimensions: '24" x 36"',
+    medium: 'Oil on canvas',
+    year: '2022'
+  },
+  {
+    id: '2',
+    title: 'Urban Rhythm',
+    artist: 'Marcus Chen',
+    description: 'An abstract representation of city life, with geometric shapes and bold colors creating a sense of movement and energy.',
+    price: 950,
+    imageUrl: 'https://images.unsplash.com/photo-1549887552-cb1071d3e5ca?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=765&q=80',
+    dimensions: '30" x 30"',
+    medium: 'Acrylic on canvas',
+    year: '2021'
+  },
+  {
+    id: '3',
+    title: 'Serene Forest',
+    artist: 'Olivia Martinez',
+    description: 'A peaceful forest scene with sunlight filtering through the trees, creating a sense of tranquility and harmony with nature.',
+    price: 1500,
+    imageUrl: 'https://images.unsplash.com/photo-1518021964703-4b2030f03085?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80',
+    dimensions: '36" x 48"',
+    medium: 'Oil on canvas',
+    year: '2023'
+  },
+  {
+    id: '4',
+    title: 'Coastal Dreams',
+    artist: 'James Wilson',
+    description: 'A dreamy coastal landscape with soft waves crashing against rocky shores, evoking a sense of nostalgia and longing.',
+    price: 1100,
+    imageUrl: 'https://images.unsplash.com/photo-1518623489648-a173ef7824f3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80',
+    dimensions: '24" x 36"',
+    medium: 'Watercolor on paper',
+    year: '2022'
+  }
+];
 
 export interface AppContextType {
   isDarkMode: boolean;
@@ -24,7 +73,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [cart, setCart] = useState<Artwork[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [artworks, setArtworks] = useState<Artwork[]>([]);
+  const [artworks] = useState<Artwork[]>(artworkData);
 
   // Initialize dark mode from localStorage
   useEffect(() => {
@@ -62,76 +111,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Initialize favorites from localStorage
   useEffect(() => {
     const savedFavorites = localStorage.getItem('favorites');
+    console.log('Loading favorites from localStorage:', savedFavorites);
     if (savedFavorites) {
-      try {
-        const parsedFavorites = JSON.parse(savedFavorites);
-        setFavorites(Array.isArray(parsedFavorites) ? parsedFavorites : []);
-      } catch (error) {
-        console.error('Error parsing favorites from localStorage:', error);
-        localStorage.removeItem('favorites');
-        setFavorites([]);
-      }
+      const parsedFavorites = JSON.parse(savedFavorites);
+      console.log('Parsed favorites:', parsedFavorites);
+      setFavorites(parsedFavorites);
     }
   }, []);
 
   // Save favorites to localStorage
   useEffect(() => {
+    console.log('Saving favorites to localStorage:', favorites);
     localStorage.setItem('favorites', JSON.stringify(favorites));
+    // Verify what was saved
+    const savedValue = localStorage.getItem('favorites');
+    console.log('Verified saved favorites:', savedValue);
   }, [favorites]);
-
-  // Fetch artworks from database
-  useEffect(() => {
-    const fetchArtworks = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('artworks')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (error) {
-          console.error('Error fetching artworks:', error);
-          return;
-        }
-
-        if (data) {
-          const mappedArtworks = data.map(item => ({
-            id: item.id,
-            title: item.title,
-            artist: item.artist,
-            description: item.description,
-            price: item.price,
-            imageUrl: item.imageUrl || item.image_url || 'https://via.placeholder.com/300x300?text=No+Image',
-            dimensions: item.dimensions,
-            medium: item.medium,
-            year: item.year,
-            category: item.category,
-            featured: item.featured,
-            quantity: item.quantity
-          }));
-          setArtworks(mappedArtworks);
-        }
-      } catch (error) {
-        console.error('Error in fetchArtworks:', error);
-      }
-    };
-
-    fetchArtworks();
-
-    // Subscribe to changes in the artworks table
-    const subscription = supabase
-      .channel('artworks-changes')
-      .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'artworks' }, 
-        () => {
-          fetchArtworks();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(subscription);
-    };
-  }, []);
 
   const toggleDarkMode = () => {
     setIsDarkMode(prev => !prev);
@@ -139,9 +134,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const addToCart = (artwork: Artwork) => {
     setCart(prevCart => {
+      // Check if the artwork is already in the cart
       const existingItemIndex = prevCart.findIndex(item => item.id === artwork.id);
       
       if (existingItemIndex >= 0) {
+        // If it exists, update the quantity
         const updatedCart = [...prevCart];
         const currentQuantity = updatedCart[existingItemIndex].quantity || 1;
         updatedCart[existingItemIndex] = {
@@ -150,6 +147,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         };
         return updatedCart;
       } else {
+        // If it doesn't exist, add it with quantity 1
         return [...prevCart, { ...artwork, quantity: 1 }];
       }
     });
@@ -176,16 +174,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, 0);
 
   const addToFavorites = (id: string) => {
+    console.log('Adding to favorites, ID:', id);
     setFavorites(prev => {
       if (prev.includes(id)) {
+        console.log('ID already in favorites, not adding again');
         return prev;
       }
+      console.log('Adding new ID to favorites:', [...prev, id]);
       return [...prev, id];
     });
   };
 
   const removeFromFavorites = (id: string) => {
-    setFavorites(prev => prev.filter(itemId => itemId !== id));
+    console.log('Removing from favorites, ID:', id);
+    setFavorites(prev => {
+      console.log('Current favorites before removal:', prev);
+      const newFavorites = prev.filter(itemId => itemId !== id);
+      console.log('Favorites after removal:', newFavorites);
+      return newFavorites;
+    });
   };
 
   const isInFavorites = (id: string) => {
