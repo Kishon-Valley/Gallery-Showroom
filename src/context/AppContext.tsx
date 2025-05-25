@@ -119,11 +119,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('cart', JSON.stringify(cart));
   }, [cart]);
 
-  // Initialize favorites from localStorage
+  // Initialize favorites from localStorage and validate against available artworks
   useEffect(() => {
     const savedFavorites = localStorage.getItem('favorites');
     if (savedFavorites) {
-      setFavorites(JSON.parse(savedFavorites));
+      const parsedFavorites = JSON.parse(savedFavorites);
+      // Filter out any favorite IDs that don't exist in the current artworks
+      const validFavorites = parsedFavorites.filter((id: string) => 
+        artworkData.some(artwork => artwork.id === id)
+      );
+      setFavorites(validFavorites);
     }
   }, []);
 

@@ -16,7 +16,18 @@ export const Favorites = () => {
   
   // Update favorite artworks when favorites change
   useEffect(() => {
-    setFavoriteArtworks(artworks.filter(artwork => favorites.includes(artwork.id)));
+    const filtered = artworks.filter(artwork => favorites.includes(artwork.id));
+    setFavoriteArtworks(filtered);
+    
+    // If we have favorites IDs but no matching artworks, there might be stale IDs in localStorage
+    if (favorites.length > 0 && filtered.length === 0) {
+      console.log('Favorites IDs exist but no matching artworks found. Cleaning up favorites.');
+      // Clean up favorites that don't match any artwork
+      const validFavorites = favorites.filter(id => artworks.some(artwork => artwork.id === id));
+      if (validFavorites.length !== favorites.length) {
+        removeFromFavorites(favorites.filter(id => !validFavorites.includes(id))[0]);
+      }
+    }
   }, [favorites, artworks]);
   
   // Redirect if not authenticated (handled by ProtectedRoute in App.tsx)
