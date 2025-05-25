@@ -8,7 +8,11 @@ export async function redirectToStripeCheckout(cart: any[]) {
     }
     
     // Call our API route to create a checkout session
-    const response = await fetch('/api/create-checkout-session', {
+    // Use the correct API endpoint path - either relative or absolute depending on deployment
+    const apiUrl = window.location.hostname === 'localhost' 
+      ? '/api/create-checkout-session'
+      : `${window.location.origin}/api/create-checkout-session`;
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -39,7 +43,23 @@ export async function redirectToStripeCheckout(cart: any[]) {
     
   } catch (error) {
     console.error('Error in redirectToCheckout:', error);
-    alert('We are experiencing issues with our payment processor. Please try again later.');
+    
+    // Show more specific error message based on the error type
+    let errorMessage = 'We are experiencing issues with our payment processor. Please try again later.';
+    
+    if (error instanceof Error) {
+      // Log detailed error for debugging
+      console.error('Error details:', error.message);
+      
+      // Check for common error cases
+      if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+        errorMessage = 'Network error: Unable to connect to the payment service. Please check your internet connection and try again.';
+      } else if (error.message.includes('Stripe configuration error')) {
+        errorMessage = 'Payment service configuration error. Please contact support.';
+      }
+    }
+    
+    alert(errorMessage);
     throw error;
   }
 }
