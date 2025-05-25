@@ -119,23 +119,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('cart', JSON.stringify(cart));
   }, [cart]);
 
-  // Initialize favorites from localStorage and validate against available artworks
+  // Initialize favorites from localStorage - don't validate against static data
   useEffect(() => {
     const savedFavorites = localStorage.getItem('favorites');
     if (savedFavorites) {
-      const parsedFavorites = JSON.parse(savedFavorites);
-      // Filter out any favorite IDs that don't exist in the current artworks
-      const validFavorites = parsedFavorites.filter((id: string) => 
-        artworkData.some(artwork => artwork.id === id)
-      );
-      
-      // If none of the favorites are valid, clear the favorites completely
-      if (parsedFavorites.length > 0 && validFavorites.length === 0) {
-        console.log('No valid favorites found. Clearing favorites.');
+      try {
+        const parsedFavorites = JSON.parse(savedFavorites);
+        // Just load the favorites directly - we'll validate them when displaying
+        setFavorites(Array.isArray(parsedFavorites) ? parsedFavorites : []);
+        console.log('Loaded favorites from localStorage:', parsedFavorites);
+      } catch (error) {
+        console.error('Error parsing favorites from localStorage:', error);
         localStorage.removeItem('favorites');
         setFavorites([]);
-      } else {
-        setFavorites(validFavorites);
       }
     }
   }, []);

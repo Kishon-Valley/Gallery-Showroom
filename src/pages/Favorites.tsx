@@ -14,20 +14,18 @@ export const Favorites = () => {
     artworks.filter(artwork => favorites.includes(artwork.id))
   );
   
+  const [isLoading, setIsLoading] = useState(true);
+
   // Update favorite artworks when favorites change
   useEffect(() => {
-    const filtered = artworks.filter(artwork => favorites.includes(artwork.id));
-    setFavoriteArtworks(filtered);
+    console.log('Current favorites:', favorites);
+    console.log('Available artworks:', artworks);
     
-    // If we have favorites IDs but no matching artworks, there might be stale IDs in localStorage
-    if (favorites.length > 0 && filtered.length === 0) {
-      console.log('Favorites IDs exist but no matching artworks found. Cleaning up favorites.');
-      // Clean up favorites that don't match any artwork
-      const validFavorites = favorites.filter(id => artworks.some(artwork => artwork.id === id));
-      if (validFavorites.length !== favorites.length) {
-        removeFromFavorites(favorites.filter(id => !validFavorites.includes(id))[0]);
-      }
-    }
+    // Filter artworks to only include those in favorites
+    const filtered = artworks.filter(artwork => favorites.includes(artwork.id));
+    console.log('Filtered favorite artworks:', filtered);
+    setFavoriteArtworks(filtered);
+    setIsLoading(false);
   }, [favorites, artworks]);
   
   // Redirect if not authenticated (handled by ProtectedRoute in App.tsx)
@@ -46,7 +44,7 @@ export const Favorites = () => {
     addToCart(artwork);
   };
   
-  if (loading) {
+  if (loading || isLoading) {
     return (
       <div className={`min-h-screen pt-20 flex items-center justify-center ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
