@@ -128,7 +128,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const validFavorites = parsedFavorites.filter((id: string) => 
         artworkData.some(artwork => artwork.id === id)
       );
-      setFavorites(validFavorites);
+      
+      // If none of the favorites are valid, clear the favorites completely
+      if (parsedFavorites.length > 0 && validFavorites.length === 0) {
+        console.log('No valid favorites found. Clearing favorites.');
+        localStorage.removeItem('favorites');
+        setFavorites([]);
+      } else {
+        setFavorites(validFavorites);
+      }
     }
   }, []);
 
