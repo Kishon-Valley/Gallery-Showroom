@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 export const Favorites = () => {
-  const { favorites, removeFromFavorites, addToCart, artworks, isDarkMode } = useAppContext();
+  const { favorites, removeFromFavorites, addToCart, artworks, isDarkMode, artworksLoading } = useAppContext();
   const { isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
   
@@ -44,7 +44,7 @@ export const Favorites = () => {
     addToCart(artwork);
   };
   
-  if (loading || isLoading) {
+  if (loading || isLoading || artworksLoading) {
     return (
       <div className={`min-h-screen pt-20 flex items-center justify-center ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>

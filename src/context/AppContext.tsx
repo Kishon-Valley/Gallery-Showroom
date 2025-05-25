@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 
 // Define the Artwork type with quantity
 export interface Artwork {
@@ -76,6 +77,7 @@ export interface AppContextType {
   removeFromFavorites: (id: string) => void;
   isInFavorites: (id: string) => boolean;
   artworks: Artwork[];
+  artworksLoading: boolean;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -84,8 +86,56 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [cart, setCart] = useState<Artwork[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [artworks] = useState<Artwork[]>(artworkData);
+  const [artworks, setArtworks] = useState<Artwork[]>([]);
+  const [artworksLoading, setArtworksLoading] = useState(true);
 
+  // Fetch artworks from Supabase
+  useEffect(() => {
+    const fetchArtworks = async () => {
+      try {
+        setArtworksLoading(true);
+        
+        // Fetch all artworks from the database
+        const { data, error } = await supabase
+          .from('artworks')
+          .select('*');
+        
+        if (error) {
+          throw error;
+        }
+        
+        if (!data || data.length === 0) {
+          console.log('No artworks found in database, using fallback data');
+          setArtworks(artworkData);
+        } else {
+          // Map database fields to component expected fields
+          const mappedArtworks = data.map((artwork: any) => ({
+            id: artwork.id,
+            title: artwork.title,
+            artist: artwork.artist,
+            description: artwork.description,
+            price: artwork.price,
+            imageUrl: artwork.imageUrl,
+            dimensions: artwork.dimensions,
+            medium: artwork.medium,
+            year: artwork.year
+          }));
+          
+          console.log('AppContext: Fetched artworks from database:', mappedArtworks);
+          setArtworks(mappedArtworks);
+        }
+      } catch (err) {
+        console.error('Error fetching artworks in AppContext:', err);
+        // Use fallback data if fetch fails
+        setArtworks(artworkData);
+      } finally {
+        setArtworksLoading(false);
+      }
+    };
+    
+    fetchArtworks();
+  }, []);
+  
   // Initialize dark mode from localStorage
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode');
@@ -218,7 +268,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         addToFavorites,
         removeFromFavorites,
         isInFavorites,
-        artworks
+        artworks,
+        artworksLoading
       }}
     >
       {children}
