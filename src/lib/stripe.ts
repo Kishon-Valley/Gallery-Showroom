@@ -20,8 +20,9 @@ export async function redirectToStripeCheckout(cart: any[]) {
       body: JSON.stringify({ cart }),
     });
     
-    // Log the response status for debugging
+    // Log the response status and headers for debugging
     console.log('Checkout session response status:', response.status);
+    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
     
     if (!response.ok) {
       let errorMessage = 'Failed to create checkout session';

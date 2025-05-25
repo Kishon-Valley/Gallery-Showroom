@@ -21,8 +21,13 @@ export default async function handler(req, res) {
   try {
     // Check if Stripe is properly initialized
     if (!stripeKey) {
+      console.error('Stripe API key is missing - cannot process checkout');
       return res.status(500).json({ error: 'Stripe configuration error. Please check server logs.' });
     }
+    
+    // Log request information for debugging
+    console.log('API request headers:', req.headers);
+    console.log('Processing checkout with Stripe key type:', stripeKey.startsWith('sk_test') ? 'Test key' : 'Production key');
     
     const { cart } = req.body;
     
