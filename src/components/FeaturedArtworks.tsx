@@ -67,7 +67,7 @@ export const FeaturedArtworks = ({ artworks }: FeaturedArtworksProps) => {
               <h3 className="text-xl font-semibold mb-2">{artwork.title}</h3>
               <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'} mb-4`}>{artwork.artist}</p>
               <div className="flex justify-between items-center mb-2">
-                <p className="text-base font-semibold">
+                <p className="text-sm font-semibold">
                   ${artwork.price.toLocaleString()}
                 </p>
                 <Link
