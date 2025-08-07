@@ -275,7 +275,7 @@ export const Gallery = () => {
               </div>
               <div className="p-4">
                 <div className="flex justify-between items-center mb-2">
-                  <p className="text-lg font-semibold">
+                  <p className="text-base font-semibold">
                     ${artwork.price.toLocaleString()}
                   </p>
                   {artwork.dimensions && (
