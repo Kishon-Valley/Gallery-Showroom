@@ -66,8 +66,10 @@ export const FeaturedArtworks = ({ artworks }: FeaturedArtworksProps) => {
             <div className="p-6">
               <h3 className="text-xl font-semibold mb-2">{artwork.title}</h3>
               <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'} mb-4`}>{artwork.artist}</p>
-              <div className="flex justify-between items-center">
-                <span className="font-bold text-lg">${artwork.price.toLocaleString()}</span>
+              <div className="flex justify-between items-center mb-2">
+                <p className="text-lg font-semibold">
+                  ${artwork.price.toLocaleString()}
+                </p>
                 <Link
                   to={`/gallery`}
                   className={`text-sm ${isDarkMode ? 'text-blue-400' : 'text-blue-600'} hover:underline`}
