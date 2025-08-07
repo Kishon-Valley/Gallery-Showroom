@@ -13,7 +13,7 @@ import { Profile } from './pages/Profile';
 import { ARPreview } from './pages/ARPreview';
 import { ARPreviewLanding } from './pages/ARPreviewLanding';
 import { Admin } from './pages/Admin';
-import { AppProvider } from './context/AppContext';
+import { AppProvider, useAppContext } from './context/AppContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import AuthCallback from './pages/AuthCallback';
 
@@ -38,11 +38,12 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
 };
 
 function App() {
+  const { isDarkMode } = useAppContext();
   return (
     <Router>
       <AuthProvider>
         <AppProvider>
-          <div className="flex flex-col min-h-screen">
+          <div className={`flex flex-col min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
             <Navigation />
             <main className="flex-grow">
               <Routes>
