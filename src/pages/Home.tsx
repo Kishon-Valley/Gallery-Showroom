@@ -63,7 +63,7 @@ export const Home = () => {
   };
 
   return (
-    <main className="bg-white">
+    <main className="bg-white dark:bg-gray-900">
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
@@ -80,7 +80,7 @@ export const Home = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-5xl md:text-7xl font-bold mb-6"
+            className="text-5xl md:text-7xl font-bold mb-6 text-gray-900 dark:text-white"
           >
             Discover Exceptional Art
           </motion.h1>
@@ -88,7 +88,7 @@ export const Home = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto"
+            className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300"
           >
             Curated collection of contemporary masterpieces from world-renowned artists
           </motion.p>
@@ -97,7 +97,7 @@ export const Home = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="bg-white text-black px-8 py-3 rounded-full font-medium flex items-center space-x-2 mx-auto hover:bg-gray-100 transition-colors"
+              className="bg-white text-black px-8 py-3 rounded-full font-medium flex items-center space-x-2 mx-auto hover:bg-gray-100 transition-colors dark:bg-gray-800 dark:text-white"
             >
               <span>Explore Gallery</span>
               <ArrowRight className="w-5 h-5" />
@@ -107,7 +107,7 @@ export const Home = () => {
       </section>
 
       {/* Featured Artworks Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -115,8 +115,8 @@ export const Home = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Featured Artworks</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-white">Featured Artworks</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
               Discover our handpicked selection of exceptional pieces that represent
               the pinnacle of contemporary artistic expression.
             </p>

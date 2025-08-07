@@ -89,33 +89,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [artworks, setArtworks] = useState<Artwork[]>([]);
   const [artworksLoading, setArtworksLoading] = useState(true);
 
-  useEffect(() => {
-    const savedDarkMode = localStorage.getItem('darkMode');
-    if (savedDarkMode) {
-      setIsDarkMode(JSON.parse(savedDarkMode));
-    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setIsDarkMode(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [isDarkMode]);
-
-  const toggleDarkMode = () => {
-    setIsDarkMode(prev => !prev);
-  };
-
+  // Fetch artworks from Supabase
   useEffect(() => {
     const fetchArtworks = async () => {
       try {
         setArtworksLoading(true);
         
+        // Fetch all artworks from the database
         const { data, error } = await supabase
           .from('artworks')
           .select('*');
@@ -128,6 +108,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           console.log('No artworks found in database, using fallback data');
           setArtworks(artworkData);
         } else {
+          // Map database fields to component expected fields
           const mappedArtworks = data.map((artwork: any) => ({
             id: artwork.id,
             title: artwork.title,
@@ -145,6 +126,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
       } catch (err) {
         console.error('Error fetching artworks in AppContext:', err);
+        // Use fallback data if fetch fails
         setArtworks(artworkData);
       } finally {
         setArtworksLoading(false);
@@ -153,7 +135,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     
     fetchArtworks();
   }, []);
+  
+  // Initialize dark mode from localStorage
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem('darkMode');
+    if (savedDarkMode) {
+      setIsDarkMode(JSON.parse(savedDarkMode));
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setIsDarkMode(true);
+    }
+  }, []);
 
+  // Save dark mode preference to localStorage
+  useEffect(() => {
+    localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
+  // Initialize cart from localStorage
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
@@ -161,15 +164,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, []);
 
+  // Save cart to localStorage
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cart));
   }, [cart]);
 
+  // Initialize favorites from localStorage - don't validate against static data
   useEffect(() => {
     const savedFavorites = localStorage.getItem('favorites');
     if (savedFavorites) {
       try {
         const parsedFavorites = JSON.parse(savedFavorites);
+        // Just load the favorites directly - we'll validate them when displaying
         setFavorites(Array.isArray(parsedFavorites) ? parsedFavorites : []);
         console.log('Loaded favorites from localStorage:', parsedFavorites);
       } catch (error) {
@@ -180,15 +186,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, []);
 
+  // Save favorites to localStorage
   useEffect(() => {
     localStorage.setItem('favorites', JSON.stringify(favorites));
   }, [favorites]);
 
+  const toggleDarkMode = () => {
+    setIsDarkMode(prev => !prev);
+  };
+
   const addToCart = (artwork: Artwork) => {
     setCart(prevCart => {
+      // Check if the artwork is already in the cart
       const existingItemIndex = prevCart.findIndex(item => item.id === artwork.id);
       
       if (existingItemIndex >= 0) {
+        // If it exists, update the quantity
         const updatedCart = [...prevCart];
         const currentQuantity = updatedCart[existingItemIndex].quantity || 1;
         updatedCart[existingItemIndex] = {
@@ -197,6 +210,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         };
         return updatedCart;
       } else {
+        // If it doesn't exist, add it with quantity 1
         return [...prevCart, { ...artwork, quantity: 1 }];
       }
     });

@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 export const Favorites = () => {
-  const { favorites, removeFromFavorites, addToCart, artworks, isDarkMode, artworksLoading } = useAppContext();
+  const { favorites, removeFromFavorites, addToCart, artworks, artworksLoading } = useAppContext();
   const { isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
   
@@ -46,20 +46,37 @@ export const Favorites = () => {
   
   if (loading || isLoading || artworksLoading) {
     return (
-      <div className={`min-h-screen pt-20 flex items-center justify-center ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
+      <div className="min-h-screen pt-20 flex items-center justify-center bg-white dark:bg-gray-900">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
   }
 
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen pt-20 flex items-center justify-center bg-white dark:bg-gray-900">
+        <div className="text-center max-w-md">
+          <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Authentication Required</h2>
+          <p className="mb-6 text-gray-700 dark:text-gray-300">You need to be signed in to view your favorites.</p>
+          <button
+            onClick={() => navigate('/signin')}
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Sign In
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className={`min-h-screen pt-20 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
+    <div className="min-h-screen pt-20 bg-white dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-3xl font-bold mb-8">Your Favorites</h1>
+        <h1 className="text-3xl font-bold mb-8 text-center text-gray-900 dark:text-white">Your Favorites</h1>
 
         {favoriteArtworks.length === 0 ? (
-          <div className={`text-center py-12 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-sm`}>
-            <p className="text-xl mb-4">You haven't added any favorites yet</p>
+          <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+            <p className="text-xl mb-4 text-gray-900 dark:text-white">You haven't added any favorites yet</p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <a href="/gallery" className="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                 Browse Gallery
@@ -88,7 +105,7 @@ export const Favorites = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className={`rounded-lg overflow-hidden shadow-sm ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
+                className="rounded-lg overflow-hidden shadow-sm bg-white dark:bg-gray-800"
               >
                 <div className="relative h-64">
                   <img 
@@ -128,16 +145,16 @@ export const Favorites = () => {
                 </div>
                 <div className="p-4">
                   <div className="flex justify-between items-center mb-2">
-                    <p className="text-sm font-semibold">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white">
                       ${artwork.price.toLocaleString()}
                     </p>
                     {artwork.dimensions && (
-                      <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
                         {artwork.dimensions}
                       </p>
                     )}
                   </div>
-                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                  <p className="text-gray-600 mb-3 dark:text-gray-300">
                     {artwork.description?.substring(0, 100)}
                     {artwork.description && artwork.description.length > 100 ? '...' : ''}
                   </p>

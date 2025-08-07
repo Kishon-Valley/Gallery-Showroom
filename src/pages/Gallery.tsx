@@ -275,7 +275,7 @@ export const Gallery = () => {
               </div>
               <div className="p-4">
                 <div className="flex justify-between items-center mb-2">
-                  <p className="text-sm font-semibold">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white">
                     ${artwork.price.toLocaleString()}
                   </p>
                   {artwork.dimensions && (
@@ -300,21 +300,19 @@ export const Gallery = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className={`rounded-lg shadow-xl w-full max-w-md p-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
+            className={`rounded-lg shadow-xl w-full max-w-md p-6 bg-white dark:bg-gray-800`}
           >
-            <h2 className="text-xl font-bold mb-4">
+            <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
               {authModalAction === 'cart' ? 'Add to Cart' : 'Add to Favorites'}
             </h2>
-            <p className="mb-4">
+            <p className="mb-4 text-gray-600 dark:text-gray-300">
               You need to be signed in to {authModalAction === 'cart' ? 'add items to your cart' : 'save favorites'}. 
               Please sign in or create an account to continue.
             </p>
             <div className="flex flex-col space-y-3">
               <button
                 onClick={() => setShowAuthModal(false)}
-                className={`py-2 rounded-lg ${
-                  isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'
-                }`}
+                className={`py-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600`}
               >
                 Cancel
               </button>
