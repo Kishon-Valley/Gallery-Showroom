@@ -93,10 +93,10 @@ export const Home = () => {
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 text-gray-900 dark:text-white"
               >
-                Discover
+                Home
                 <br />
                 <span className="text-blue-600 dark:text-blue-400">
-                  Exceptional Art
+                  Of Exceptional Arts
                 </span>
               </motion.h1>
               
@@ -106,8 +106,8 @@ export const Home = () => {
                 transition={{ duration: 0.8, delay: 0.4 }}
                 className="text-xl md:text-2xl mb-8 text-gray-600 dark:text-gray-300 max-w-2xl mx-auto lg:mx-0"
               >
-                Curated collection of contemporary masterpieces from world-renowned artists, 
-                bringing Brazilian artistry to the world.
+                a collection of inspiring and beautiful arts from an inspired artist, 
+                bringing out the nature of life and emotions through  artworks to the world.
               </motion.p>
 
               <motion.div
@@ -237,8 +237,7 @@ export const Home = () => {
               Featured Artworks
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              Discover our handpicked selection of exceptional pieces that represent
-              the pinnacle of contemporary artistic expression.
+              See our handpicked selection of exceptional pieces that brings out the meaning to the word , Beauty.
             </p>
           </motion.div>
           
@@ -252,7 +251,7 @@ export const Home = () => {
             </div>
           ) : featuredArtworks.length === 0 ? (
             <div className="text-center py-10 text-gray-600 dark:text-gray-300">
-              <p>No artworks found. Check back soon for our curated collection.</p>
+              <p>No artworks found. Check back soon for our Arts collection.</p>
             </div>
           ) : (
             <FeaturedArtworks artworks={featuredArtworks} />
