@@ -1,173 +1,176 @@
-import { useState, useEffect } from 'react';
-import { Trash2, CreditCard, Plus, Minus } from 'lucide-react';
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Trash2, Minus, Plus, ArrowRight } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
-import { useSearchParams } from 'react-router-dom';
-import { redirectToStripeCheckout } from '../lib/stripe';
+import { useNavigate } from 'react-router-dom';
 
 export const Cart = () => {
-  const { cart, removeFromCart, updateCartItemQuantity, cartTotal, isDarkMode } = useAppContext();
-  const { loading } = useAuth();
-  const [searchParams] = useSearchParams();
+  const { cart, removeFromCart, updateCartItemQuantity, cartTotal } = useAppContext();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Handle success/cancel messages
-  useEffect(() => {
-    if (searchParams.get('success')) {
-      alert('Payment successful! Thank you for your purchase.');
-      // You might want to clear the cart here
-    }
-    if (searchParams.get('canceled')) {
-      alert('Payment canceled.');
-    }
-  }, [searchParams]);
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(price);
-  };
-
-  const handleQuantityChange = (itemId: string, newQuantity: number) => {
-    if (newQuantity >= 1 && newQuantity <= 10) {
-      updateCartItemQuantity(itemId, newQuantity);
-    }
-  };
-
   const handleCheckout = async () => {
+    if (!isAuthenticated) {
+      navigate('/signin', { 
+        state: { 
+          from: '/cart',
+          message: 'Please sign in to complete your purchase'
+        } 
+      });
+      return;
+    }
+
+    setIsProcessing(true);
+    
     try {
-      setIsProcessing(true);
-      await redirectToStripeCheckout(cart);
+      // Create checkout session
+      const response = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ cart }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create checkout session');
+      }
+
+      const { url } = await response.json();
+      window.location.href = url;
     } catch (error) {
-      console.error('Error during checkout:', error);
-      alert('There was a problem with checkout. Please try again.');
+      console.error('Error creating checkout session:', error);
+      alert('Failed to create checkout session. Please try again.');
     } finally {
       setIsProcessing(false);
     }
   };
 
-  if (loading) {
+  if (cart.length === 0) {
     return (
-      <div className={`min-h-screen pt-20 flex items-center justify-center ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="min-h-screen pt-20 flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="text-center">
+          <div className="w-24 h-24 mx-auto mb-6 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
+            <ArrowRight className="w-12 h-12 text-gray-400 dark:text-gray-500" />
+          </div>
+          <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Your cart is empty</h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-8">
+            Start shopping to add some beautiful artwork to your cart.
+          </p>
+          <button
+            onClick={() => navigate('/gallery')}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors"
+          >
+            Browse Gallery
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={`min-h-screen pt-20 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
+    <div className="min-h-screen pt-20 bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-3xl font-bold mb-8">Your Cart</h1>
-
-        {cart.length === 0 ? (
-          <div className={`text-center py-12 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-sm`}>
-            <p className="text-xl mb-4">Your cart is empty</p>
-            <a href="/gallery" className="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-              Browse Gallery
-            </a>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
-              <div className={`rounded-lg shadow-sm overflow-hidden ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
-                <ul className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {cart.map(item => (
-                    <li key={item.id} className="p-4 sm:p-6">
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center">
-                        <div className="w-full sm:w-24 h-24 rounded-lg overflow-hidden mr-6 mb-4 sm:mb-0">
-                          <img 
-                            src={item.imageUrl} 
-                            alt={item.title} 
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="text-lg font-medium">{item.title}</h3>
-                          <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{item.artist}</p>
-                          {item.dimensions && (
-                            <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                              {item.dimensions}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex flex-col items-end mt-4 sm:mt-0">
-                          <span className="text-lg font-medium mb-2">
-                            {formatPrice(item.price * (item.quantity || 1))}
-                          </span>
-                          
-                          {/* Quantity Selector */}
-                          <div className="flex items-center mb-3">
-                            <button
-                              onClick={() => handleQuantityChange(item.id, (item.quantity || 1) - 1)}
-                              disabled={(item.quantity || 1) <= 1}
-                              className={`p-1 rounded ${
-                                (item.quantity || 1) <= 1 
-                                  ? 'opacity-50 cursor-not-allowed' 
-                                  : 'hover:bg-gray-200 dark:hover:bg-gray-700'
-                              }`}
-                            >
-                              <Minus className="w-4 h-4" />
-                            </button>
-                            <span className="mx-2 w-8 text-center">{item.quantity || 1}</span>
-                            <button
-                              onClick={() => handleQuantityChange(item.id, (item.quantity || 1) + 1)}
-                              disabled={(item.quantity || 1) >= 10}
-                              className={`p-1 rounded ${
-                                (item.quantity || 1) >= 10 
-                                  ? 'opacity-50 cursor-not-allowed' 
-                                  : 'hover:bg-gray-200 dark:hover:bg-gray-700'
-                              }`}
-                            >
-                              <Plus className="w-4 h-4" />
-                            </button>
-                          </div>
-                          
-                          <button
-                            onClick={() => removeFromCart(item.id)}
-                            className="p-2 rounded-full hover:bg-red-100 dark:hover:bg-red-900 text-red-500 transition-colors"
-                          >
-                            <Trash2 className="w-5 h-5" />
-                          </button>
-                        </div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            <div className="lg:col-span-1">
-              <div className={`rounded-lg shadow-sm p-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
-                <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
-                <div className="space-y-3 mb-6">
-                  <div className="flex justify-between">
-                    <span className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Subtotal</span>
-                    <span>{formatPrice(cartTotal)}</span>
+        <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">Shopping Cart</h1>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Cart Items */}
+          <div className="lg:col-span-2">
+            <div className="rounded-lg shadow-sm overflow-hidden bg-white dark:bg-gray-800">
+              {cart.map((item) => (
+                <div key={item.id} className="flex items-center p-6 border-b border-gray-200 dark:border-gray-700 last:border-b-0">
+                  <img
+                    src={item.imageUrl}
+                    alt={item.title}
+                    className="w-20 h-20 object-cover rounded-lg"
+                  />
+                  <div className="ml-4 flex-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-white">{item.title}</h3>
+                    <p className="text-gray-600 dark:text-gray-300">{item.artist}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {item.dimensions && `${item.dimensions} • `}{item.medium}
+                    </p>
                   </div>
-                  <div className="flex justify-between">
-                    <span className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Shipping</span>
-                    <span>Free</span>
-                  </div>
-                  <div className="border-t border-gray-200 dark:border-gray-700 pt-3 mt-3">
-                    <div className="flex justify-between font-semibold">
-                      <span>Total</span>
-                      <span>{formatPrice(cartTotal)}</span>
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => updateCartItemQuantity(item.id, Math.max(1, (item.quantity || 1) - 1))}
+                        className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        <Minus className="w-4 h-4" />
+                      </button>
+                      <span className="w-8 text-center text-gray-900 dark:text-white">
+                        {item.quantity || 1}
+                      </span>
+                      <button
+                        onClick={() => updateCartItemQuantity(item.id, (item.quantity || 1) + 1)}
+                        className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
                     </div>
+                    <div className="text-right">
+                      <p className="font-semibold text-gray-900 dark:text-white">
+                        ${((item.price * (item.quantity || 1)).toLocaleString())}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => removeFromCart(item.id)}
+                      className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
-                <button
-                  onClick={handleCheckout}
-                  disabled={isProcessing}
-                  className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <CreditCard className="w-5 h-5" />
-                  <span>{isProcessing ? 'Processing...' : 'Proceed to Checkout'}</span>
-                </button>
-              </div>
+              ))}
             </div>
           </div>
-        )}
+
+          {/* Order Summary */}
+          <div className="lg:col-span-1">
+            <div className="rounded-lg shadow-sm p-6 bg-white dark:bg-gray-800">
+              <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Order Summary</h2>
+              
+              <div className="space-y-3 mb-6">
+                <div className="flex justify-between">
+                  <span className="text-gray-600 dark:text-gray-300">Subtotal</span>
+                  <span className="text-gray-900 dark:text-white">${cartTotal.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600 dark:text-gray-300">Shipping</span>
+                  <span className="text-gray-900 dark:text-white">Free</span>
+                </div>
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
+                  <div className="flex justify-between font-semibold">
+                    <span className="text-gray-900 dark:text-white">Total</span>
+                    <span className="text-gray-900 dark:text-white">${cartTotal.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={handleCheckout}
+                disabled={isProcessing}
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-3 px-6 rounded-lg font-medium transition-colors flex items-center justify-center"
+              >
+                {isProcessing ? (
+                  <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+                ) : (
+                  <>
+                    Proceed to Checkout
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </>
+                )}
+              </button>
+
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-4 text-center">
+                Secure checkout powered by Stripe
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

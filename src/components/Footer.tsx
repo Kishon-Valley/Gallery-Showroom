@@ -25,7 +25,7 @@ export const Footer = () => {
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 50 }}
-          className="bg-white border-t border-gray-200 py-8 shadow-lg"
+          className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-8 shadow-lg"
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0">
@@ -35,7 +35,7 @@ export const Footer = () => {
                   href="#facebook"  // Will update later
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-600 hover:text-blue-600 transition-colors transform hover:scale-110"
+                  className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors transform hover:scale-110"
                 >
                   <Facebook className="w-6 h-6" />
                   <span className="sr-only">Facebook</span>
@@ -44,7 +44,7 @@ export const Footer = () => {
                   href="#instagram"  // Will update later
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-600 hover:text-pink-600 transition-colors transform hover:scale-110"
+                  className="text-gray-600 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-colors transform hover:scale-110"
                 >
                   <Instagram className="w-6 h-6" />
                   <span className="sr-only">Instagram</span>
@@ -53,10 +53,10 @@ export const Footer = () => {
 
               {/* Copyright */}
               <div className="text-center md:text-right">
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-gray-300">
                   © 2025 AJ Borges. All rights reserved.
                 </p>
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   Bringing Brazilian artistry to the world
                 </p>
               </div>

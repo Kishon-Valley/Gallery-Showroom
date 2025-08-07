@@ -1,102 +1,102 @@
-import { motion } from 'framer-motion';
-import { User, Mail, LogOut } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useAppContext } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
+import { motion } from 'framer-motion';
+import { User, Mail, Calendar, CheckCircle } from 'lucide-react';
 
 export const Profile = () => {
-  const { isDarkMode } = useAppContext();
-  const { user, signOut } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
 
-  const profileData = {
-    firstName: user?.user_metadata?.first_name || '',
-    lastName: user?.user_metadata?.last_name || '',
-    fullName: user?.user_metadata?.full_name || user?.user_metadata?.name || '',
-    email: user?.email || ''
-  };
-  
-  const handleLogout = async () => {
-    try {
-      await signOut();
-      navigate('/');
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
+  if (!user) {
+    return (
+      <div className="min-h-screen pt-20 flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   };
 
-  // Get the sign-in method
-  const getSignInMethod = () => {
-    if (user?.app_metadata?.provider === 'google') {
-      return 'Google';
-    }
-    return 'Email';
-  };
-  
   return (
-    <div className={`min-h-screen pt-20 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen pt-20 bg-gray-50 dark:bg-gray-900">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="max-w-2xl mx-auto"
+          className="rounded-lg shadow-lg p-8 bg-white dark:bg-gray-800"
         >
-          <div className={`rounded-lg shadow-lg p-8 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
-            <div className="flex items-center justify-between mb-6">
-              <h1 className="text-2xl font-bold">Profile</h1>
-                <button
-                onClick={handleLogout}
-                className="flex items-center text-red-500 hover:text-red-600"
-              >
-                <LogOut className="w-5 h-5 mr-2" />
-                Sign Out
-                </button>
+          <div className="flex flex-col md:flex-row items-start md:items-center space-y-6 md:space-y-0 md:space-x-8">
+            {/* Avatar */}
+            <div className="w-20 h-20 rounded-full flex items-center justify-center bg-gray-100 dark:bg-gray-700">
+              <User className="w-10 h-10 text-gray-500 dark:text-gray-400" />
             </div>
-            
-            <div className="space-y-6">
-              {/* Profile Picture */}
-              <div className="flex items-center space-x-4">
-                <div className={`w-20 h-20 rounded-full flex items-center justify-center ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
-                  <User className="w-12 h-12 text-gray-400" />
-                  </div>
-                <div>
-                  <h2 className="text-xl font-semibold">
-                    {profileData.firstName && profileData.lastName 
-                      ? `${profileData.firstName} ${profileData.lastName}`
-                      : profileData.fullName || 'User'}
-                  </h2>
-                  <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    <Mail className="w-4 h-4 inline mr-2" />
-                    {profileData.email}
-                  </p>
-                </div>
+
+            {/* User Info */}
+            <div className="flex-1">
+              <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">
+                {user.user_metadata?.full_name || user.email}
+              </h1>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                {user.email}
+              </p>
+            </div>
+          </div>
+
+          {/* Account Details */}
+          <div className="mt-8 space-y-6">
+            <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-700">
+              <div className="flex items-center space-x-3 mb-2">
+                <Mail className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                <span className="text-gray-600 dark:text-gray-300">Sign in method: </span>
+                <span className="font-medium text-gray-900 dark:text-white">
+                  {user.app_metadata?.provider === 'google' ? 'Google' : 'Email'}
+                </span>
+              </div>
+              <div className="flex items-center space-x-3 mb-2">
+                <Calendar className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                <span className="text-gray-600 dark:text-gray-300">Account created: </span>
+                <span className="font-medium text-gray-900 dark:text-white">
+                  {formatDate(user.created_at)}
+                </span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <CheckCircle className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                <span className="text-gray-600 dark:text-gray-300">Email verified: </span>
+                <span className={`font-medium ${user.email_confirmed_at ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                  {user.email_confirmed_at ? 'Yes' : 'No'}
+                </span>
+              </div>
+            </div>
+
+            {/* Additional Features */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="p-6 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+                <h3 className="text-lg font-semibold mb-2 text-blue-900 dark:text-blue-100">
+                  Account Features
+                </h3>
+                <ul className="space-y-2 text-blue-800 dark:text-blue-200">
+                  <li>• Secure authentication</li>
+                  <li>• Profile management</li>
+                  <li>• Order history</li>
+                  <li>• Favorite artworks</li>
+                </ul>
               </div>
 
-              {/* Account Info */}
-              <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
-                <h3 className="font-medium mb-2">Account Information</h3>
-                <div className="space-y-2">
-                  <p>
-                    <span className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Sign in method: </span>
-                    <span className="font-medium">{getSignInMethod()}</span>
-                  </p>
-                  <p>
-                    <span className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Account created: </span>
-                    <span className="font-medium">
-                      {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}
-                    </span>
-                  </p>
-                  {user?.email_confirmed_at && (
-                    <p>
-                      <span className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Email verified: </span>
-                      <span className="font-medium">
-                        {new Date(user.email_confirmed_at).toLocaleDateString()}
-                      </span>
-                    </p>
-                  )}
-                  </div>
-                </div>
+              <div className="p-6 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                <h3 className="text-lg font-semibold mb-2 text-green-900 dark:text-green-100">
+                  Gallery Access
+                </h3>
+                <ul className="space-y-2 text-green-800 dark:text-green-200">
+                  <li>• Browse all artworks</li>
+                  <li>• Add to favorites</li>
+                  <li>• AR preview mode</li>
+                  <li>• Secure checkout</li>
+                </ul>
+              </div>
             </div>
           </div>
         </motion.div>

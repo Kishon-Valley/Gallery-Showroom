@@ -64,8 +64,7 @@ export const Gallery = () => {
     isInCart, 
     addToFavorites, 
     removeFromFavorites, 
-    isInFavorites, 
-    isDarkMode 
+    isInFavorites
   } = useAppContext();
   
   const { isAuthenticated } = useAuth();
@@ -184,19 +183,19 @@ export const Gallery = () => {
 
   if (loading) {
     return (
-      <div className={`min-h-screen pt-20 flex items-center justify-center ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
+      <div className="min-h-screen pt-20 flex items-center justify-center bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
   }
 
   return (
-    <div className={`min-h-screen pt-20 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
+    <div className="min-h-screen pt-20 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="text-3xl font-bold mb-8">Art Gallery</h1>
         
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+          <div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-400 px-4 py-3 rounded mb-6">
             <p>{error}</p>
           </div>
         )}
@@ -208,7 +207,7 @@ export const Gallery = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className={`rounded-lg overflow-hidden shadow-sm ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
+              className="rounded-lg overflow-hidden shadow-sm bg-white dark:bg-gray-800"
               onMouseEnter={() => setHoveredArtwork(artwork.id)}
               onMouseLeave={() => {
                 setHoveredArtwork(null);
@@ -279,12 +278,12 @@ export const Gallery = () => {
                     ${artwork.price.toLocaleString()}
                   </p>
                   {artwork.dimensions && (
-                    <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       {artwork.dimensions}
                     </p>
                   )}
                 </div>
-                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                <p className="text-sm text-gray-600 dark:text-gray-300">
                   {artwork.description.substring(0, 100)}
                   {artwork.description.length > 100 ? '...' : ''}
                 </p>
@@ -300,7 +299,7 @@ export const Gallery = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className={`rounded-lg shadow-xl w-full max-w-md p-6 bg-white dark:bg-gray-800`}
+            className="rounded-lg shadow-xl w-full max-w-md p-6 bg-white dark:bg-gray-800"
           >
             <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
               {authModalAction === 'cart' ? 'Add to Cart' : 'Add to Favorites'}
@@ -312,7 +311,7 @@ export const Gallery = () => {
             <div className="flex flex-col space-y-3">
               <button
                 onClick={() => setShowAuthModal(false)}
-                className={`py-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600`}
+                className="py-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white"
               >
                 Cancel
               </button>

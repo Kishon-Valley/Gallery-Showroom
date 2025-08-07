@@ -68,7 +68,7 @@ const localArtworks: ArtworkBase[] = [
 ];
 
 export const ARPreview = () => {
-  const { artworks, isDarkMode } = useAppContext();
+  const { artworks } = useAppContext();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   
@@ -233,7 +233,7 @@ export const ARPreview = () => {
   
   if (!artwork) {
     return (
-      <div className={`min-h-screen pt-20 flex items-center justify-center ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
+      <div className="min-h-screen pt-20 flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
@@ -241,7 +241,7 @@ export const ARPreview = () => {
   
   return (
     <div 
-      className={`min-h-screen pt-20 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}
+      className="min-h-screen pt-20 bg-gray-50 dark:bg-gray-900"
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onTouchMove={handleTouchMove}
@@ -251,20 +251,16 @@ export const ARPreview = () => {
         <div className="flex items-center mb-6">
           <button
             onClick={() => navigate(-1)}
-            className={`p-2 rounded-full ${isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-200'} mr-4`}
+            className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 mr-4"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-2xl font-bold">AR Preview: {artwork.title}</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">AR Preview: {artwork.title}</h1>
           
           <div className="ml-auto">
             <button
               onClick={toggleCameraMode}
-              className={`flex items-center px-4 py-2 rounded-lg ${
-                isDarkMode 
-                  ? 'bg-gray-700 hover:bg-gray-600' 
-                  : 'bg-gray-200 hover:bg-gray-300'
-              } transition-colors`}
+              className="flex items-center px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
             >
               {useLiveCamera ? (
                 <>
@@ -284,7 +280,7 @@ export const ARPreview = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <div 
-              className={`relative w-full h-[60vh] overflow-hidden rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-gray-200'}`}
+              className="relative w-full h-[60vh] overflow-hidden rounded-lg bg-gray-200 dark:bg-gray-800"
               style={!useLiveCamera ? {
                 backgroundImage: `url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1700&q=80')`,
                 backgroundSize: 'cover',
@@ -296,8 +292,8 @@ export const ARPreview = () => {
                   {cameraPermission === false ? (
                     <div className="absolute inset-0 flex items-center justify-center flex-col p-6 text-center">
                       <Camera className="w-12 h-12 mb-4 text-red-500" />
-                      <h3 className="text-xl font-bold mb-2">Camera Access Required</h3>
-                      <p className="mb-4">{cameraError || 'Please allow camera access to use AR preview.'}</p>
+                      <h3 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">Camera Access Required</h3>
+                      <p className="mb-4 text-gray-600 dark:text-gray-300">{cameraError || 'Please allow camera access to use AR preview.'}</p>
                       <button
                         onClick={toggleCameraMode}
                         className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -367,7 +363,7 @@ export const ARPreview = () => {
             </div>
             
             {useLiveCamera && (
-              <div className="mt-4 p-4 bg-yellow-100 text-yellow-800 rounded-lg">
+              <div className="mt-4 p-4 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 rounded-lg">
                 <p className="flex items-center">
                   <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd"></path>
@@ -379,103 +375,103 @@ export const ARPreview = () => {
           </div>
           
           <div className="lg:col-span-1">
-            <div className={`rounded-lg shadow-sm p-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
-              <h2 className="text-xl font-semibold mb-4">Artwork Details</h2>
+            <div className="rounded-lg shadow-sm p-6 bg-white dark:bg-gray-800">
+              <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Artwork Details</h2>
               
               <div className="space-y-4 mb-6">
                 <div>
-                  <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Title</p>
-                  <p className="font-medium">{artwork.title}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Title</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{artwork.title}</p>
                 </div>
                 <div>
-                  <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Artist</p>
-                  <p className="font-medium">{artwork.artist}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Artist</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{artwork.artist}</p>
                 </div>
                 {artwork.dimensions && (
                   <div>
-                    <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Dimensions</p>
-                    <p className="font-medium">{artwork.dimensions}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Dimensions</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{artwork.dimensions}</p>
                   </div>
                 )}
                 {artwork.medium && (
                   <div>
-                    <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Medium</p>
-                    <p className="font-medium">{artwork.medium}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Medium</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{artwork.medium}</p>
                   </div>
                 )}
                 <div>
-                  <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Price</p>
-                  <p className="font-medium">${artwork.price.toLocaleString()}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Price</p>
+                  <p className="font-medium text-gray-900 dark:text-white">${artwork.price.toLocaleString()}</p>
                 </div>
               </div>
               
               <div className="mb-6">
-                <h3 className="text-lg font-medium mb-3">Frame Style</h3>
+                <h3 className="text-lg font-medium mb-3 text-gray-900 dark:text-white">Frame Style</h3>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={() => setFrameStyle('classic')}
                     className={`p-3 rounded-lg border ${
                       frameStyle === 'classic' 
                         ? 'border-blue-500 ring-2 ring-blue-500' 
-                        : isDarkMode ? 'border-gray-700' : 'border-gray-300'
+                        : 'border-gray-300 dark:border-gray-700'
                     }`}
                   >
                     <div className="w-full h-12 border-8 border-amber-800"></div>
-                    <p className="mt-2 text-sm text-center">Classic</p>
+                    <p className="mt-2 text-sm text-center text-gray-900 dark:text-white">Classic</p>
                   </button>
                   <button
                     onClick={() => setFrameStyle('modern')}
                     className={`p-3 rounded-lg border ${
                       frameStyle === 'modern' 
                         ? 'border-blue-500 ring-2 ring-blue-500' 
-                        : isDarkMode ? 'border-gray-700' : 'border-gray-300'
+                        : 'border-gray-300 dark:border-gray-700'
                     }`}
                   >
                     <div className="w-full h-12 border-4 border-gray-800"></div>
-                    <p className="mt-2 text-sm text-center">Modern</p>
+                    <p className="mt-2 text-sm text-center text-gray-900 dark:text-white">Modern</p>
                   </button>
                   <button
                     onClick={() => setFrameStyle('minimal')}
                     className={`p-3 rounded-lg border ${
                       frameStyle === 'minimal' 
                         ? 'border-blue-500 ring-2 ring-blue-500' 
-                        : isDarkMode ? 'border-gray-700' : 'border-gray-300'
+                        : 'border-gray-300 dark:border-gray-700'
                     }`}
                   >
                     <div className="w-full h-12 border-[1px] border-gray-300"></div>
-                    <p className="mt-2 text-sm text-center">Minimal</p>
+                    <p className="mt-2 text-sm text-center text-gray-900 dark:text-white">Minimal</p>
                   </button>
                   <button
                     onClick={() => setFrameStyle('none')}
                     className={`p-3 rounded-lg border ${
                       frameStyle === 'none' 
                         ? 'border-blue-500 ring-2 ring-blue-500' 
-                        : isDarkMode ? 'border-gray-700' : 'border-gray-300'
+                        : 'border-gray-300 dark:border-gray-700'
                     }`}
                   >
                     <div className="w-full h-12 border-dashed border-2 border-gray-400 flex items-center justify-center">
                       <X className="w-6 h-6 text-gray-400" />
                     </div>
-                    <p className="mt-2 text-sm text-center">No Frame</p>
+                    <p className="mt-2 text-sm text-center text-gray-900 dark:text-white">No Frame</p>
                   </button>
                 </div>
               </div>
               
               <div className="space-y-3">
-                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                <p className="text-sm text-gray-600 dark:text-gray-300">
                   • Drag the artwork to position it on the wall
                 </p>
-                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                <p className="text-sm text-gray-600 dark:text-gray-300">
                   • Use the zoom controls to resize
                 </p>
-                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                <p className="text-sm text-gray-600 dark:text-gray-300">
                   • Rotate to find the perfect angle
                 </p>
-                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                <p className="text-sm text-gray-600 dark:text-gray-300">
                   • Try different frames to match your decor
                 </p>
                 {useLiveCamera && (
-                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
                     • Move around to see the artwork in different locations
                   </p>
                 )}
