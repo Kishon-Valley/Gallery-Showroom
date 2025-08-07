@@ -93,10 +93,10 @@ export const Home = () => {
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 text-gray-900 dark:text-white"
               >
-                Home
+                Home,
                 <br />
                 <span className="text-blue-600 dark:text-blue-400">
-                  Of Exceptional Arts
+                  To Exceptional Arts
                 </span>
               </motion.h1>
               
