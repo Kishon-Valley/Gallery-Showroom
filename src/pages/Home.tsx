@@ -91,11 +91,11 @@ export const Home = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
-                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 lg:mb-6 text-gray-900 dark:text-white leading-tight"
+                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl hero-title mb-4 lg:mb-6 text-gray-900 dark:text-white leading-tight"
               >
                 Home,
                 <br />
-                <span className="text-blue-600 dark:text-blue-400">
+                <span className="text-gradient">
                   To Exceptional Arts
                 </span>
               </motion.h1>
@@ -104,7 +104,7 @@ export const Home = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
-                className="text-lg sm:text-xl lg:text-2xl mb-6 lg:mb-8 text-gray-600 dark:text-gray-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed"
+                className="text-lg sm:text-xl lg:text-2xl mb-6 lg:mb-8 text-gray-600 dark:text-gray-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed hero-subtitle"
               >
                 a collection of inspiring and beautiful arts from an inspired artist, 
                 bringing out the nature of life and emotions through artworks to the world.
