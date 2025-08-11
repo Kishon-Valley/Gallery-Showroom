@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Camera, Heart, ShoppingCart } from 'lucide-react';
+import { Camera, Heart, ShoppingCart, ArrowDown, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { ARPreview } from './ARPreview';
@@ -22,115 +22,104 @@ export const FeaturedArtworks = ({ artworks }: FeaturedArtworksProps) => {
 
   return (
     <>
-      {/* Mobile: horizontal carousel */}
-      <div className="md:hidden -mx-4 px-4">
-        <div className="flex space-x-4 overflow-x-auto snap-x snap-mandatory pb-2 no-scrollbar">
-          {artworks.map((artwork, index) => (
-            <motion.div
-              key={artwork.id}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45, delay: index * 0.12 }}
-              className="snap-center min-w-[80%] shrink-0 rounded-xl overflow-hidden shadow-md bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700"
-            >
-              <div className="relative">
-                <img
-                  src={artwork.imageUrl}
-                  alt={artwork.title}
-                  loading="lazy"
-                  className="w-full aspect-[4/5] object-cover"
-                />
-                {/* Bottom action bar for better touch targets */}
-                <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between gap-2">
-                  <button
-                    onClick={() => handleARPreview(artwork)}
-                    className="flex-1 py-2 rounded-lg bg-white/90 dark:bg-gray-900/80 text-gray-900 dark:text-white text-sm font-medium shadow backdrop-blur hover:bg-white"
-                    aria-label="Try on wall"
-                  >
-                    AR Preview
-                  </button>
-                  <button
-                    onClick={() => addToFavorites(artwork.id)}
-                    className="p-2 rounded-lg bg-white/90 dark:bg-gray-900/80 text-gray-900 dark:text-white shadow hover:bg-white"
-                    aria-label="Add to favorites"
-                  >
-                    <Heart className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() => addToCart(artwork)}
-                    className="p-2 rounded-lg bg-blue-600 text-white shadow hover:bg-blue-700"
-                    aria-label="Add to cart"
-                  >
-                    <ShoppingCart className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-              <div className="p-4">
-                <h3 className="text-base font-semibold mb-1 text-gray-900 dark:text-white line-clamp-1">{artwork.title}</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-2 line-clamp-1">{artwork.artist}</p>
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white">${artwork.price.toLocaleString()}</p>
-                  <Link to="/gallery" className="text-sm text-blue-600 dark:text-blue-400 font-medium">View</Link>
-                </div>
-              </div>
-            </motion.div>
-          ))}
+      {/* Mobile Pull-to-Refresh Indicator */}
+      <motion.div
+        className="text-center py-4 sm:hidden"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="inline-flex items-center space-x-2 text-sm text-gray-500">
+          <ArrowDown className="w-4 h-4 animate-bounce" />
+          <span>Pull down to refresh</span>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Desktop / tablet: grid */}
-      <div className="hidden md:grid md:grid-cols-3 gap-6 md:gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
         {artworks.map((artwork, index) => (
           <motion.div
             key={artwork.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: index * 0.15 }}
-            className="rounded-xl overflow-hidden shadow-lg bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700"
+            transition={{ duration: 0.6, delay: index * 0.1 }}
+            whileHover={{ y: -4 }}
+            whileTap={{ scale: 0.98 }}
+            className="rounded-xl overflow-hidden shadow-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
           >
-            <div className="relative group">
+            <div className="relative group cursor-pointer">
               <img
                 src={artwork.imageUrl}
                 alt={artwork.title}
+                className="w-full h-48 sm:h-56 lg:h-64 object-cover transition-transform duration-300 group-hover:scale-105"
                 loading="lazy"
-                className="w-full aspect-[4/5] object-cover"
               />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
-                <div className="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <button
-                    onClick={() => handleARPreview(artwork)}
-                    className="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
-                    aria-label="Try on wall"
-                  >
-                    <Camera className="w-5 h-5 text-gray-900" />
-                  </button>
-                  <button
-                    onClick={() => addToFavorites(artwork.id)}
-                    className="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
-                    aria-label="Add to favorites"
-                  >
-                    <Heart className="w-5 h-5 text-gray-900" />
-                  </button>
-                  <button
-                    onClick={() => addToCart(artwork)}
-                    className="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
-                    aria-label="Add to cart"
-                  >
-                    <ShoppingCart className="w-5 h-5 text-gray-900" />
-                  </button>
+              
+              {/* Mobile Touch Indicator */}
+              <div className="absolute top-2 right-2 sm:hidden">
+                <div className="bg-black/60 text-white px-2 py-1 rounded-full text-xs">
+                  Tap to interact
+                </div>
+              </div>
+
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="absolute bottom-4 left-4 right-4">
+                  <div className="flex space-x-2 justify-center">
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => handleARPreview(artwork)}
+                      className="p-3 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-white/30 transition-all duration-200 shadow-lg"
+                      aria-label="AR Preview"
+                    >
+                      <Camera className="w-5 h-5" />
+                    </motion.button>
+                    
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => addToFavorites(artwork.id)}
+                      className="p-3 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-white/30 transition-all duration-200 shadow-lg"
+                      aria-label="Add to favorites"
+                    >
+                      <Heart className="w-5 h-5" />
+                    </motion.button>
+                    
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => addToCart(artwork)}
+                      className="p-3 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-white/30 transition-all duration-200 shadow-lg"
+                      aria-label="Add to cart"
+                    >
+                      <ShoppingCart className="w-5 h-5" />
+                    </motion.button>
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="p-6">
-              <h3 className="text-lg md:text-xl font-semibold mb-2 text-gray-900 dark:text-white">{artwork.title}</h3>
-              <p className="text-gray-600 dark:text-gray-300 mb-4">{artwork.artist}</p>
-              <div className="flex justify-between items-center">
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                  ${artwork.price.toLocaleString()}
-                </p>
+            
+            <div className="p-4 sm:p-5 lg:p-6">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-1 line-clamp-2">
+                {artwork.title}
+              </h3>
+              
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-1">
+                by {artwork.artist}
+              </p>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                    ${artwork.price.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {artwork.medium} • {artwork.year}
+                  </p>
+                </div>
+                
                 <Link
                   to={`/gallery`}
-                  className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                  className="text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
                 >
                   View Details
                 </Link>
@@ -139,6 +128,19 @@ export const FeaturedArtworks = ({ artworks }: FeaturedArtworksProps) => {
           </motion.div>
         ))}
       </div>
+
+      {/* Mobile Load More Indicator */}
+      <motion.div
+        className="text-center py-8 sm:hidden"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.5 }}
+      >
+        <div className="inline-flex items-center space-x-2 text-sm text-gray-500">
+          <ChevronDown className="w-4 h-4 animate-bounce" />
+          <span>Scroll for more artworks</span>
+        </div>
+      </motion.div>
 
       {/* AR Preview Modal */}
       {showARPreview && selectedArtwork && (
@@ -152,11 +154,10 @@ export const FeaturedArtworks = ({ artworks }: FeaturedArtworksProps) => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-            <ARPreview artwork={selectedArtwork} onClose={() => setShowARPreview(false)} />
+            <ARPreview artwork={selectedArtwork as Artwork} onClose={() => setShowARPreview(false)} />
           </div>
         </div>
       )}
     </>
   );
-};
- 
+}; 
