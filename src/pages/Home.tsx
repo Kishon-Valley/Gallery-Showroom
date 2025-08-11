@@ -328,59 +328,7 @@ export const Home = () => {
           </motion.div>
         </div>
       </section>
-      {/* Mobile App Banner */}
-      <motion.section 
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.5 }}
-        className="py-16 lg:py-24 bg-gradient-to-r from-blue-600 to-purple-600 text-white"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <motion.h2 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4"
-            >
-              Experience Art Like Never Before
-            </motion.h2>
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="text-lg sm:text-xl mb-8 max-w-2xl mx-auto opacity-90"
-            >
-              Download our mobile app for the best experience. Get exclusive previews, 
-              save your favorites, and purchase securely with Apple Pay & Google Pay.
-            </motion.p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-white text-blue-600 px-6 py-3 rounded-xl font-semibold flex items-center space-x-2 shadow-lg"
-              >
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17.48 2 13.85 2 10.37c0-3.87 2.44-5.93 4.83-5.93 1.27 0 2.48.67 3.12.67.65 0 1.63-.67 2.85-.67 2.44 0 4.83 2.2 4.83 5.93 0 3.48-2.25 7.1-4.39 9.13zM12 4.45c.73-1 1.5-1.89 2.76-1.89 1.26 0 2.1.89 2.38 1.89-.48 1-1.5 1.89-2.76 1.89-1.26 0-2.1-.89-2.38-1.89z"/>
-                </svg>
-                <span>Download for iOS</span>
-              </motion.button>
-              
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-white/10 backdrop-blur-sm border border-white/20 text-white px-6 py-3 rounded-xl font-semibold flex items-center space-x-2"
-              >
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M21.6 7.8c-.2-.5-.5-1-.9-1.4L16 2.3c-.4-.4-.9-.7-1.4-.9-.5-.2-1-.3-1.5-.3H8c-.5 0-1 .1-1.5.3-.5.2-1 .5-1.4.9L2.4 6.4c-.4.4-.7.9-.9 1.4-.2.5-.3 1-.3 1.5v8c0 .5.1 1 .3 1.5.2.5.5 1 .9 1.4l4.7 4.7c.4.4.9.7 1.4.9.5.2 1 .3 1.5.3h8c.5 0 1-.1 1.5-.3.5-.2 1-.5 1.4-.9l4.7-4.7c.4-.4.7-.9.9-1.4.2-.5.3-1 .3-1.5v-8c0-.5-.1-1-.3-1.5zM12 20c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"/>
-                </svg>
-                <span>Download for Android</span>
-              </motion.button>
-            </div>
-          </div>
-        </div>
-      </motion.section>
+
 
       {/* Mobile Quick Actions */}
       <motion.div
