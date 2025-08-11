@@ -161,7 +161,7 @@ export const Home = () => {
               </motion.div>
             </motion.div>
 
-            {/* Line Cover Image */}
+            {/* Hero Image with Creative Shape */}
             <motion.div
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
@@ -169,39 +169,55 @@ export const Home = () => {
               className="relative order-1 lg:order-2 mb-8 lg:mb-0"
             >
               <div className="relative w-full max-w-sm sm:max-w-md mx-auto">
-                {/* Main Image */}
+                {/* Creative Shape Container */}
                 <motion.div
-                  initial={{ scale: 0.95 }}
-                  animate={{ scale: 1 }}
+                  initial={{ scale: 0.95, rotate: -2 }}
+                  animate={{ scale: 1, rotate: 0 }}
                   transition={{ duration: 1, delay: 0.5 }}
                   className="relative"
                 >
-                  <img
-                    src={columbineImage}
-                    alt="Columbine Flower - Line Cover Artwork"
-                    className="w-full h-auto rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
-                  />
+                  {/* Background Shape */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-purple-600 rounded-[50px] transform rotate-3 scale-105 opacity-20"></div>
                   
-                  {/* Decorative Elements */}
-                  <div className="absolute -top-2 -right-2 w-4 h-4 sm:w-6 sm:h-6 bg-yellow-400 rounded-full opacity-60"></div>
-                  <div className="absolute -bottom-2 -left-2 w-3 h-3 sm:w-4 sm:h-4 bg-gray-400 rounded-full opacity-40"></div>
+                  {/* Main Image with Creative Shape */}
+                  <div className="relative rounded-[40px] overflow-hidden shadow-2xl transform -rotate-1 hover:rotate-0 transition-transform duration-500">
+                    <img
+                      src={columbineImage}
+                      alt="Columbine Flower - Line Cover Artwork"
+                      className="w-full h-auto object-cover transform hover:scale-105 transition-transform duration-500"
+                    />
+                    
+                    {/* Shape Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent rounded-[40px]"></div>
+                  </div>
+                  
+                  {/* Decorative Shape Elements */}
+                  <div className="absolute -top-4 -right-4 w-8 h-8 sm:w-12 sm:h-12 bg-yellow-400 rounded-full opacity-80 animate-pulse"></div>
+                  <div className="absolute -bottom-6 -left-6 w-6 h-6 sm:w-10 sm:h-10 bg-purple-500 rounded-full opacity-60"></div>
+                  <div className="absolute top-1/2 -left-8 w-4 h-4 sm:w-6 sm:h-6 bg-blue-500 rounded-full opacity-40"></div>
                 </motion.div>
 
-                {/* Floating Info Card */}
+                {/* Floating Info Card with Creative Shape */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 1 }}
-                  className="absolute -bottom-3 -right-3 sm:-bottom-4 sm:-right-4 bg-white dark:bg-gray-800 rounded-lg shadow-md p-2 sm:p-3 border border-gray-200 dark:border-gray-700"
+                  className="absolute -bottom-6 -right-6 sm:-bottom-8 sm:-right-8 bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-3 sm:p-4 border border-gray-200 dark:border-gray-700 transform rotate-2 hover:rotate-0 transition-transform duration-300"
                 >
-                  <div className="flex items-center space-x-2">
-                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full"></div>
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 sm:w-4 sm:h-4 bg-gradient-to-r from-green-400 to-blue-500 rounded-full animate-pulse"></div>
                     <div>
-                      <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">Columbine Flower</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Oil on Canvas</p>
+                      <p className="text-sm font-bold text-gray-900 dark:text-white">Columbine Flower</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Premium Oil on Canvas</p>
                     </div>
                   </div>
                 </motion.div>
+
+                {/* Creative Accent Lines */}
+                <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+                  <div className="absolute top-4 left-4 w-16 h-0.5 bg-gradient-to-r from-transparent to-blue-500 rounded-full"></div>
+                  <div className="absolute bottom-4 right-4 w-12 h-0.5 bg-gradient-to-l from-transparent to-purple-500 rounded-full"></div>
+                </div>
               </div>
             </motion.div>
           </div>
