@@ -66,164 +66,166 @@ export const Home = () => {
   };
 
   return (
-    <main className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 min-h-screen">
-      {/* Hero Section - Mobile First Design */}
-      <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
-        {/* Subtle Background Pattern */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-transparent to-purple-50 dark:from-blue-900/10 dark:to-purple-900/10">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSIjOUM5MkFDIiBmaWxsLW9wYWNpdHk9IjAuMDMiPjxwYXRoIGQ9Ik0wIDQwTDQwIDBIMjBMMCAyME00MCA0MFYyMEwyMCA0MCIvPjwvZz48L3N2Zz4=')] dark:bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSIjZmZmZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDMiPjxwYXRoIGQ9Ik0wIDQwTDQwIDBIMjBMMCAyME00MCA0MFYyMEwyMCA0MCIvPjwvZz48L3N2Zz4=')]"></div>
+    <main className="bg-white dark:bg-gray-900">
+      {/* Hero Section */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 bg-gray-50 dark:bg-gray-900">
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute top-20 left-20 w-32 h-32 bg-blue-200 dark:bg-blue-800 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-20 right-20 w-40 h-40 bg-gray-200 dark:bg-gray-800 rounded-full blur-3xl"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-gray-200 dark:bg-gray-800 rounded-full blur-3xl"></div>
+          </div>
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-          <div className="flex flex-col items-center text-center">
-            {/* Main Content - Mobile Optimized */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            {/* Text Content */}
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
-              className="w-full max-w-2xl"
+              className="text-center lg:text-left order-2 lg:order-1"
             >
-              {/* Hero Image - Mobile First */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                className="relative mb-8 lg:mb-12"
-              >
-                <div className="relative mx-auto w-full max-w-xs sm:max-w-sm">
-                  <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-                    <img
-                      src={columbineImage}
-                      alt="Columbine Flower - Premium Artwork"
-                      className="w-full h-64 sm:h-80 object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                  </div>
-                  
-                  {/* Floating Badge */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.5 }}
-                    className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 rounded-full px-4 py-2 shadow-lg border border-gray-200 dark:border-gray-700"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                      <span className="text-xs font-medium text-gray-900 dark:text-white">Columbine Flower</span>
-                    </div>
-                  </motion.div>
-                </div>
-              </motion.div>
-
-              {/* Headline - Mobile Optimized Typography */}
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.3 }}
-                className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 text-gray-900 dark:text-white leading-tight"
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 lg:mb-6 text-gray-900 dark:text-white leading-tight"
               >
-                Art That
+                Home,
                 <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
-                  Speaks to You
+                <span className="text-blue-600 dark:text-blue-400">
+                  To Exceptional Arts
                 </span>
               </motion.h1>
-
-              {/* Subtitle - Mobile Optimized */}
+              
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
-                className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed max-w-md mx-auto"
+                className="text-lg sm:text-xl lg:text-2xl mb-6 lg:mb-8 text-gray-600 dark:text-gray-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed"
               >
-                Discover extraordinary artworks that capture life's beauty and emotion. 
-                Each piece tells a unique story.
+                a collection of inspiring and beautiful arts from an inspired artist, 
+                bringing out the nature of life and emotions through artworks to the world.
               </motion.p>
 
-              {/* CTA Buttons - Mobile Stacked */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.5 }}
-                className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+                transition={{ duration: 0.8, delay: 0.6 }}
+                className="flex flex-col sm:flex-row gap-3 lg:gap-4 justify-center lg:justify-start"
               >
-                <Link to="/gallery" className="w-full sm:w-auto">
+                <Link to="/gallery">
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold flex items-center justify-center space-x-2 transition-all duration-200 shadow-lg hover:shadow-xl"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-medium flex items-center justify-center space-x-2 mx-auto lg:mx-0 transition-colors duration-200 w-full sm:w-auto"
                   >
                     <span>Explore Gallery</span>
-                    <ArrowRight className="w-5 h-5" />
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
                   </motion.button>
                 </Link>
                 
-                <Link to="/ar-preview" className="w-full sm:w-auto">
+                <Link to="/ar-preview">
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-8 py-4 rounded-xl font-semibold flex items-center justify-center space-x-2 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-200 shadow-md hover:shadow-lg"
+                    className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-medium flex items-center justify-center space-x-2 mx-auto lg:mx-0 border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 transition-colors duration-200 w-full sm:w-auto"
                   >
-                    <Camera className="w-5 h-5" />
+                    <Camera className="w-4 h-4 sm:w-5 sm:h-5" />
                     <span>Try AR Preview</span>
                   </motion.button>
                 </Link>
               </motion.div>
 
-              {/* Feature Pills - Mobile Friendly */}
+              {/* Feature Icons */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.6 }}
-                className="flex flex-wrap justify-center gap-3 mt-8"
+                transition={{ duration: 0.8, delay: 0.8 }}
+                className="flex flex-wrap justify-center lg:justify-start gap-4 lg:gap-8 mt-8 lg:mt-12"
               >
-                {[
-                  { icon: Palette, text: 'Original Art' },
-                  { icon: Heart, text: 'Curated Collection' },
-                  { icon: ShoppingCart, text: 'Secure Checkout' }
-                ].map((feature, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5, delay: 0.7 + index * 0.1 }}
-                    className="flex items-center space-x-2 px-4 py-2 bg-white dark:bg-gray-800 rounded-full text-sm text-gray-700 dark:text-gray-300 shadow-sm border border-gray-200 dark:border-gray-700"
-                  >
-                    <feature.icon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                    <span>{feature.text}</span>
-                  </motion.div>
-                ))}
+                <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
+                  <Palette className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="text-xs sm:text-sm">Original Artworks</span>
+                </div>
+                <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
+                  <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="text-xs sm:text-sm">Curated Collection</span>
+                </div>
+                <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
+                  <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="text-xs sm:text-sm">Secure Checkout</span>
+                </div>
               </motion.div>
+            </motion.div>
+
+            {/* Line Cover Image */}
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="relative order-1 lg:order-2 mb-8 lg:mb-0"
+            >
+              <div className="relative w-full max-w-sm sm:max-w-md mx-auto">
+                {/* Main Image */}
+                <motion.div
+                  initial={{ scale: 0.95 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 1, delay: 0.5 }}
+                  className="relative"
+                >
+                  <img
+                    src={columbineImage}
+                    alt="Columbine Flower - Line Cover Artwork"
+                    className="w-full h-auto rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
+                  />
+                  
+                  {/* Decorative Elements */}
+                  <div className="absolute -top-2 -right-2 w-4 h-4 sm:w-6 sm:h-6 bg-yellow-400 rounded-full opacity-60"></div>
+                  <div className="absolute -bottom-2 -left-2 w-3 h-3 sm:w-4 sm:h-4 bg-gray-400 rounded-full opacity-40"></div>
+                </motion.div>
+
+                {/* Floating Info Card */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 1 }}
+                  className="absolute -bottom-3 -right-3 sm:-bottom-4 sm:-right-4 bg-white dark:bg-gray-800 rounded-lg shadow-md p-2 sm:p-3 border border-gray-200 dark:border-gray-700"
+                >
+                  <div className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full"></div>
+                    <div>
+                      <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">Columbine Flower</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Oil on Canvas</p>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
             </motion.div>
           </div>
         </div>
 
-        {/* Modern Scroll Indicator */}
+        {/* Scroll Indicator */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 1 }}
-          className="absolute bottom-6 left-1/2 transform -translate-x-1/2"
+          transition={{ duration: 1, delay: 1.5 }}
+          className="absolute bottom-4 sm:bottom-8 left-1/2 transform -translate-x-1/2"
         >
-          <motion.div
-            animate={{ y: [0, 8, 0] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="flex flex-col items-center"
-          >
-            <span className="text-xs text-gray-500 dark:text-gray-400 mb-2">Scroll to explore</span>
-            <div className="w-6 h-10 border-2 border-gray-300 dark:border-gray-600 rounded-full flex justify-center pt-2">
-              <motion.div
-                animate={{ y: [0, 6, 0] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-                className="w-1 h-3 bg-gray-400 dark:bg-gray-500 rounded-full"
-              />
-            </div>
-          </motion.div>
+          <div className="w-5 h-8 sm:w-6 sm:h-10 border-2 border-gray-400 dark:border-gray-500 rounded-full flex justify-center">
+            <motion.div
+              animate={{ y: [0, 10, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+              className="w-0.5 h-2 sm:w-1 sm:h-3 bg-gray-400 dark:bg-gray-500 rounded-full mt-2"
+            ></motion.div>
+          </div>
         </motion.div>
       </section>
 
-      {/* Featured Artworks Section - Mobile Optimized */}
-      <section className="py-16 lg:py-24 bg-gradient-to-b from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
+      {/* Featured Artworks Section */}
+      <section className="py-12 sm:py-16 lg:py-20 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -231,131 +233,49 @@ export const Home = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-12 lg:mb-16"
           >
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 text-gray-900 dark:text-white"
-            >
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 lg:mb-6 text-gray-900 dark:text-white">
               Featured Artworks
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed"
-            >
-              Handpicked masterpieces that showcase exceptional talent and emotional depth. 
-              Each artwork is carefully selected for its unique story and visual impact.
-            </motion.p>
+            </h2>
+            <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              See our handpicked selection of exceptional pieces that brings out the meaning to the word , Beauty.
+            </p>
           </motion.div>
           
           {loading ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex justify-center items-center py-20"
-            >
-              <div className="relative">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gradient-to-r from-blue-600 to-purple-600"></div>
-                <div className="absolute inset-0 animate-ping rounded-full border border-blue-600 opacity-20"></div>
-              </div>
-            </motion.div>
+            <div className="flex justify-center items-center py-16 lg:py-20">
+              <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
           ) : error ? (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center py-20"
-            >
-              <div className="max-w-md mx-auto">
-                <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Oops! Something went wrong</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">We couldn't load the artworks. Please try refreshing the page.</p>
-                <button
-                  onClick={fetchFeaturedArtworks}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
-                >
-                  Try Again
-                </button>
-              </div>
-            </motion.div>
+            <div className="text-center py-10 text-red-600 dark:text-red-400">
+              <p>Error loading artworks. Please try again later.</p>
+            </div>
           ) : featuredArtworks.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center py-20"
-            >
-              <div className="max-w-md mx-auto">
-                <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Coming Soon</h3>
-                <p className="text-gray-600 dark:text-gray-300">Our curated collection is being prepared. Check back soon for our latest artworks.</p>
-              </div>
-            </motion.div>
+            <div className="text-center py-10 text-gray-600 dark:text-gray-300">
+              <p>No artworks found. Check back soon for our Arts collection.</p>
+            </div>
           ) : (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-            >
-              <FeaturedArtworks artworks={featuredArtworks} />
-            </motion.div>
+            <FeaturedArtworks artworks={featuredArtworks} />
           )}
           
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
             className="text-center mt-12 lg:mt-16"
           >
             <Link to="/gallery">
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold inline-flex items-center space-x-2 transition-all duration-200 shadow-lg hover:shadow-xl"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 sm:px-10 py-3 sm:py-4 rounded-lg font-medium inline-flex items-center space-x-2 transition-colors duration-200"
               >
                 <span>View All Artworks</span>
-                <ArrowRight className="w-5 h-5" />
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
               </motion.button>
             </Link>
           </motion.div>
         </div>
       </section>
-
-
-      {/* Mobile Quick Actions */}
-      <motion.div
-        initial={{ opacity: 0, y: 100 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="fixed bottom-4 left-4 right-4 sm:hidden z-50"
-      >
-        <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-4 shadow-2xl border border-gray-200 dark:border-gray-700">
-          <div className="flex justify-around items-center">
-            <Link to="/gallery" className="flex flex-col items-center space-y-1 text-blue-600 dark:text-blue-400">
-              <Palette className="w-6 h-6" />
-              <span className="text-xs font-medium">Gallery</span>
-            </Link>
-            
-            <Link to="/ar-preview" className="flex flex-col items-center space-y-1 text-gray-700 dark:text-gray-300">
-              <Camera className="w-6 h-6" />
-              <span className="text-xs font-medium">AR Preview</span>
-            </Link>
-            
-            <Link to="/cart" className="flex flex-col items-center space-y-1 text-gray-700 dark:text-gray-300">
-              <ShoppingCart className="w-6 h-6" />
-              <span className="text-xs font-medium">Cart</span>
-            </Link>
-          </div>
-        </div>
-      </motion.div>
     </main>
   );
 };
