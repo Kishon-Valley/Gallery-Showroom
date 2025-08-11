@@ -7,7 +7,7 @@ import { supabase } from '../lib/supabase';
 import { Artwork as DbArtwork } from '../types/artwork';
 import { Artwork as FrontendArtwork } from '../context/AppContext';
 
-// Import the columbine flower image
+// Import hero images
 import columbineImage from '../img/image2.jpg';
 
 export const Home = () => {
