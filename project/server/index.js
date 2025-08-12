@@ -4,8 +4,8 @@ require('dotenv').config({ path: '../.env' });
 const express = require('express');
 const cors = require('cors');
 
-// Get the Stripe key from the Vite environment variable
-const stripeKey = process.env.VITE_STRIPE_SECRET_KEY;
+// Prefer STRIPE_SECRET_KEY; fallback to VITE_STRIPE_SECRET_KEY for local dev
+const stripeKey = process.env.STRIPE_SECRET_KEY || process.env.VITE_STRIPE_SECRET_KEY;
 console.log('Stripe key available:', !!stripeKey);
 
 if (!stripeKey) {

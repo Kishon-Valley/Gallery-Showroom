@@ -88,11 +88,24 @@ export const Home = () => {
         </div>
         
         <div className="relative z-10 text-center text-white px-4">
+          {/* Mobile-only overlay headline inside hero image */}
+          <div className="lg:hidden mb-4">
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="text-4xl font-extrabold leading-tight drop-shadow-md"
+            >
+              Home,
+              <br />
+              <span>To Exceptional Arts</span>
+            </motion.h1>
+          </div>
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-5xl md:text-7xl font-bold mb-6"
+            className="hidden lg:block text-5xl md:text-7xl font-bold mb-6"
           >
             Discover Exceptional Art
           </motion.h1>

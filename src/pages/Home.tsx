@@ -91,7 +91,7 @@ export const Home = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
-                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl hero-title mb-4 lg:mb-6 text-gray-900 dark:text-white leading-tight"
+                className="hidden lg:block text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl hero-title mb-4 lg:mb-6 text-gray-900 dark:text-white leading-tight"
               >
                 Home,
                 <br />
@@ -161,7 +161,7 @@ export const Home = () => {
               </motion.div>
             </motion.div>
 
-            {/* Hero Image with Creative Shape */}
+              {/* Hero Image with Creative Shape */}
             <motion.div
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
@@ -189,6 +189,17 @@ export const Home = () => {
                     
                     {/* Shape Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent rounded-[40px]"></div>
+
+                    {/* Mobile-only headline overlay inside hero image */}
+                    <div className="absolute inset-0 flex items-center justify-center lg:hidden px-4">
+                      <div className="text-center">
+                        <h1 className="text-white text-3xl sm:text-4xl font-extrabold leading-tight drop-shadow-md">
+                          Home,
+                          <br />
+                          <span className="text-white">To Exceptional Arts</span>
+                        </h1>
+                      </div>
+                    </div>
                   </div>
                   
                   {/* Decorative Shape Elements */}

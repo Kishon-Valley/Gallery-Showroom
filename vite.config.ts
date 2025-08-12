@@ -28,9 +28,7 @@ export default defineConfig({
           });
         },
       }
-    },
-    // Custom middleware to handle API requests locally during development
-    middlewareMode: 'html',
+    }
   },
   // Resolve API paths
   resolve: {
